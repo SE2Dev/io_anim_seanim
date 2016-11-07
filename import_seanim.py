@@ -3,9 +3,6 @@ from mathutils import *
 from . import seanim as SEAnim
 import os
 
-SEAnim.LOG_ANIM_HEADER = True
-SEAnim.LOG_ANIM_BONES = True
-
 # A list (in order of priority) of bone names to automatically search for when determining which bone to use as the root for delta anims
 DeltaRootBones = ["tag_origin"]
 
