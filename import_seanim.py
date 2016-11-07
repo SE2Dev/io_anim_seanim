@@ -96,8 +96,8 @@ def load_seanim(self, context, progress, filepath=""):
 
 	# Import the actual keyframes
 	progress.enter_substeps(anim.header.boneCount, "Adding Keyframes")
-	i = 0
-	for tag in anim.bones:
+
+	for i, tag in enumerate(anim.bones):
 		try:
 			# Attempt to resolve the root bone name (if it doesn't have one) based on the prioritized DeltaRootBones array
 			if(len(tag.name) == 0 and anim.header.animType == SEAnim.SEANIM_TYPE.SEANIM_TYPE_DELTA):
@@ -154,7 +154,6 @@ def load_seanim(self, context, progress, filepath=""):
 			bone.keyframe_delete(data_path="location", frame=scene.frame_start-1, group=tag.name)
 			bone.keyframe_delete(data_path="rotation_quaternion", frame=scene.frame_start-1, group=tag.name)
 
-		i += 1
 		progress.step()
 	progress.leave_substeps()
 
