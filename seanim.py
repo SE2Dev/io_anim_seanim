@@ -54,7 +54,6 @@ class Header:
 		data = struct.unpack('h', bytes)
 		
 		headerSize = data[0]
-		print("Header: %d" % headerSize)
 		bytes = file.read(headerSize - 2)
 		data = struct.unpack('=6BfII4BI', bytes); # = prefix tell is to ignore C struct packing rules
 		
