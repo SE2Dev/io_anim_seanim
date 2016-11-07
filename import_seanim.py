@@ -1,7 +1,8 @@
 import bpy
 from mathutils import *
-from . import seanim as SEAnim
+from progress_report import ProgressReport, ProgressReportSubstep
 import os
+from . import seanim as SEAnim
 
 # A list (in order of priority) of bone names to automatically search for when determining which bone to use as the root for delta anims
 DeltaRootBones = ["tag_origin"]
@@ -35,7 +36,7 @@ def ResolvePotentialAnimTypeOverride(bone, boneAnimModifiers):
 	#print("'%s' ~default" % (bone.name))
 	return None
 
-def load(self, context,  filepath=""):
+def load(self, context, filepath=""):
 	ob = bpy.context.object
 	if ob.type != 'ARMATURE':
 		return {'CANCELLED'}
@@ -47,12 +48,25 @@ def load(self, context,  filepath=""):
 	except:
 		ob.animation_data_create()
 
-	for f in self.files:
-		load_seanim(self, context, path + f.name)
+	with ProgressReport(context.window_manager) as progress:
+		# Begin the progress counter with 1 step for each file
+		progress.enter_substeps(len(self.files))
+
+		for f in self.files:
+			progress.enter_substeps(1, f.name)
+			try:
+				load_seanim(self, context, progress, path + f.name)
+			except Exception as e:
+				progress.leave_substeps("ERROR: " + repr(e))
+			else:
+				progress.leave_substeps()
 		
+		# Print when all files have been imported 
+		progress.leave_substeps("Finished!")
+
 	return {'FINISHED'}
 
-def load_seanim(self, context, filepath=""):
+def load_seanim(self, context, progress, filepath=""):
 	anim = SEAnim.Read(filepath)
 
 	# Import the animation data
@@ -81,6 +95,7 @@ def load_seanim(self, context, filepath=""):
 	"""
 
 	# Import the actual keyframes
+	progress.enter_substeps(anim.header.boneCount, "Adding Keyframes")
 	i = 0
 	for tag in anim.bones:
 		try:
@@ -91,7 +106,7 @@ def load_seanim(self, context, filepath=""):
 					tag.name = root
 			bone = ob.pose.bones.data.bones[tag.name]
 		except:
-			i += 1
+			pass
 		else:
 			animType = ResolvePotentialAnimTypeOverride(bone, anim.boneAnimModifiers)
 			if animType is None:
@@ -102,8 +117,8 @@ def load_seanim(self, context, filepath=""):
 			# Generate the rest keyframes which are used as a base for the following frames (for only the bones that are used)
 			try:
 				bone.matrix_basis.identity() # Reset to rest pos for the initial keyframe
-				bone.keyframe_insert(data_path = "location", index = -1, frame = scene.frame_start)
-				bone.keyframe_insert("rotation_quaternion", index = -1, frame = scene.frame_start)
+				bone.keyframe_insert(data_path="location", index=-1, frame=scene.frame_start-1, group=tag.name)
+				bone.keyframe_insert(data_path="rotation_quaternion", index=-1, frame=scene.frame_start-1, group=tag.name)
 			except:
 				pass
 
@@ -114,18 +129,9 @@ def load_seanim(self, context, filepath=""):
 				if animType == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE:
 					bone.matrix.translation = bone.parent.matrix*offset
 				else: # Use DELTA / RELATIVE results (ADDITIVE is unknown)
-					if len(tag.posKeys) == 1: # Single Pos
-						#bone.matrix_basis.translation = Vector((0,0,0))
-						#bone.matrix.translation += offset
-						
-						# The above two lines should be the same as this
-						bone.matrix_basis.translation = offset
+					bone.matrix_basis.translation = offset
 
-						#print("Single Pos: %s" % tag.name) # DEBUG
-					else:
-						bone.matrix_basis.translation = offset
-
-				bone.keyframe_insert("location", index = -1, frame=key.frame )
+				bone.keyframe_insert("location", index=-1, frame=key.frame, group=tag.name)
 			
 			for key in tag.rotKeys:
 				quat = Quaternion((key.data[3], key.data[0], key.data[1], key.data[2])) # Convert the Quaternion to WXYZ
@@ -135,7 +141,7 @@ def load_seanim(self, context, filepath=""):
 				try:
 					bone.parent.matrix
 				except:
-					# I dont actually remember why this is here - probably to set the root bone(s) to its rest pos / angle
+					# I don't actually remember why this is here - probably to set the root bone(s) to its rest pos / angle
 					bone.matrix_basis.identity()
 					mat = angle.to_4x4()
 				else:
@@ -143,9 +149,14 @@ def load_seanim(self, context, filepath=""):
 				
 				bone.matrix = mat
 			
-				bone.keyframe_insert("rotation_quaternion", index = -1, frame=key.frame )
-				
-			i += 1
+				bone.keyframe_insert(data_path="rotation_quaternion", index=-1, frame=key.frame, group=tag.name)
+			
+			bone.keyframe_delete(data_path="location", frame=scene.frame_start-1, group=tag.name)
+			bone.keyframe_delete(data_path="rotation_quaternion", frame=scene.frame_start-1, group=tag.name)
+
+		i += 1
+		progress.step()
+	progress.leave_substeps()
 
 	# Notetracks
 	for note in anim.notes:
