@@ -85,7 +85,7 @@ def load_seanim(self, context, progress, filepath=""):
 	scene.frame_end = scene.frame_start + anim.header.frameCount - 1
 
 	# Import the actual keyframes
-	progress.enter_substeps(anim.header.boneCount, "Adding Keyframes")
+	progress.enter_substeps(anim.header.boneCount)
 
 	for i, tag in enumerate(anim.bones):
 		try:
@@ -101,8 +101,6 @@ def load_seanim(self, context, progress, filepath=""):
 			animType = ResolvePotentialAnimTypeOverride(bone, anim.boneAnimModifiers)
 			if animType is None:
 				animType = anim.header.animType
-			#else:
-			#	print("%s using %d" %( tag.name, animType))
 
 			# Import the position keyframes
 			if len(tag.posKeys):
@@ -141,8 +139,6 @@ def load_seanim(self, context, progress, filepath=""):
 				for axis, fcurve in enumerate(fcurves):
 					fcurve.keyframe_points.add(keyCount + 1) # Add an extra keyframe for the control keyframe
 					fcurve.keyframe_points[0].co = Vector((-1, [1,0,0,0][axis])) # Add the control keyframe
-				
-				
 
 				for k, key in enumerate(tag.rotKeys):
 					quat = Quaternion((key.data[3], key.data[0], key.data[1], key.data[2])) # Convert the Quaternion to WXYZ
@@ -164,7 +160,7 @@ def load_seanim(self, context, progress, filepath=""):
 						fcurve.keyframe_points[k + 1].co = Vector((key.frame, bone.rotation_quaternion[axis])) #bone.rotation_quaternion[axis]
 						fcurve.keyframe_points[k + 1].interpolation = 'LINEAR'
 
-								# Update the FCurves
+				# Update the FCurves
 				for fc in fcurves:
 					fc.update()
 			
