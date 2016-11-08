@@ -167,6 +167,9 @@ def load_seanim(self, context, progress, filepath=""):
 			bone.keyframe_delete(data_path="location", frame=scene.frame_start-1, group=tag.name)
 			bone.keyframe_delete(data_path="rotation_quaternion", frame=scene.frame_start-1, group=tag.name)
 
+			# Remove any leftover temporary transformations for this bone
+			bone.matrix_basis.identity()
+
 		progress.step()
 	progress.leave_substeps()
 
