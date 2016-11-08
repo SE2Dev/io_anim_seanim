@@ -31,7 +31,7 @@ import time
 class ImportSEAnim(bpy.types.Operator, ImportHelper):
 	bl_idname = "import_scene.seanim"
 	bl_label = "Import SEAnim"
-	bl_description = "Import a SEAnim file"
+	bl_description = "Import one or more SEAnim files"
 	bl_options = {'PRESET'}
 
 	filename_ext = ".seanim"
@@ -44,27 +44,43 @@ class ImportSEAnim(bpy.types.Operator, ImportHelper):
 		from . import import_seanim
 		return import_seanim.load(self, context, **self.as_keywords(ignore=("filter_glob", "files")))
 
+class ExportSEAnim(bpy.types.Operator, ImportHelper):
+	bl_idname = "export_scene.seanim"
+	bl_label = "Export SEAnim"
+	bl_description = "Export an SEAnim"
+	bl_options = {'PRESET'}
+
+	filename_ext = ".seanim"
+	filter_glob = StringProperty(default="*.seanim", options={'HIDDEN'})
+
+	files = CollectionProperty(type=bpy.types.PropertyGroup)
+
+	def execute(self, context):
+		# print("Selected: " + context.active_object.name)
+		from . import export_seanim
+		return export_seanim.save(self, context)
+
 def get_operator(idname):
 	op = bpy.ops
 	for attr in idname.split("."):
 		op = getattr(op, attr)
 	return op
 
-def bc_import_items_cb(self, context):
-	l = ((ImportSEAnim.bl_idname,'SEAnim (.seanim)',ImportSEAnim.bl_description))
-	bc_import_items_cb.lookup = {id: name for id, name, desc in l}
-	return l
-
 def menu_func_seanim_import(self, context):
 	self.layout.operator(ImportSEAnim.bl_idname, text="SEAnim (.seanim)")
+
+def menu_func_seanim_export(self, context):
+	self.layout.operator(ExportSEAnim.bl_idname, text="SEAnim (.seanim)")
 
 def register():
 	bpy.utils.register_module(__name__)
 	bpy.types.INFO_MT_file_import.append(menu_func_seanim_import)
+	bpy.types.INFO_MT_file_export.append(menu_func_seanim_export)
 
 def unregister():
 	bpy.utils.unregister_module(__name__)
 	bpy.types.INFO_MT_file_import.remove(menu_func_seanim_import)
+	bpy.types.INFO_MT_file_export.remove(menu_func_seanim_export)
  
 if __name__ == "__main__":
 	register()
