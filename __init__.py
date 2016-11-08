@@ -44,6 +44,18 @@ class ImportSEAnim(bpy.types.Operator, ImportHelper):
 		from . import import_seanim
 		return import_seanim.load(self, context, **self.as_keywords(ignore=("filter_glob", "files")))
 
+	@classmethod
+	def poll(self, context):
+		if context.active_object is not None:
+			if context.active_object.type == 'ARMATURE':
+				return True
+			
+			# Currently Disabled
+			#elif context.active_object.parent is not None:
+			#	return context.active_object.parent.type == 'ARMATURE'
+
+		return False
+
 class ExportSEAnim(bpy.types.Operator, ImportHelper):
 	bl_idname = "export_scene.seanim"
 	bl_label = "Export SEAnim"
@@ -55,10 +67,38 @@ class ExportSEAnim(bpy.types.Operator, ImportHelper):
 
 	files = CollectionProperty(type=bpy.types.PropertyGroup)
 
+	type = EnumProperty(
+			name="Anim Type",
+			description="Choose between two items",
+			items=(	('OPT_ABSOLUTE', "Absolute", "Used for viewmodel animations"),
+					('OPT_ADDITIVE', "Additive", "Used for some idle animations"),
+					('OPT_RELATIVE', "Relative", "Used for most animations"),
+					('OPT_DELTA', "Delta", "Used for walk cycles")),
+			default='OPT_RELATIVE',
+			)
+
+	use_actions = BoolProperty(
+			name="Export Actions",
+			description="Export all actions to the target path",
+			default=False,
+			)
+
 	def execute(self, context):
 		# print("Selected: " + context.active_object.name)
 		from . import export_seanim
 		return export_seanim.save(self, context)
+	
+	@classmethod
+	def poll(self, context):
+		if context.active_object is not None:
+			if context.active_object.type == 'ARMATURE':
+				return True
+			
+			# Currently Disabled
+			#elif context.active_object.parent is not None:
+			#	return context.active_object.parent.type == 'ARMATURE'
+			
+		return False
 
 def get_operator(idname):
 	op = bpy.ops
