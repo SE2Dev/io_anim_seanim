@@ -244,7 +244,7 @@ class Anim:
 			print("PresenceFlags: %d" % self.header.dataPresenceFlags)
 			print("PropertyFlags: %d" % self.header.dataPropertyFlags)
 			print("FrameRate: %f" % self.header.framerate)
-			print("frameCount: %d" % self.header.frameCount)
+			print("FrameCount: %d" % self.header.frameCount)
 			print("BoneCount: %d" % self.header.boneCount)
 			print("NoteCount: %d" % self.header.noteCount)
 			print("BoneModifierCount: %d" % self.header.boneAnimModifierCount)
