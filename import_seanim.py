@@ -67,7 +67,7 @@ def load(self, context, filepath=""):
 	return {'FINISHED'}
 
 def load_seanim(self, context, progress, filepath=""):
-	anim = SEAnim.Read(filepath)
+	anim = SEAnim.Anim(filepath)
 
 	# Import the animation data
 	ob = bpy.context.object
