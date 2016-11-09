@@ -67,13 +67,13 @@ class ExportSEAnim(bpy.types.Operator, ImportHelper):
 
 	files = CollectionProperty(type=bpy.types.PropertyGroup)
 
-	type = EnumProperty(
+	anim_type = EnumProperty(
 			name="Anim Type",
 			description="Choose between two items",
 			items=(	('OPT_ABSOLUTE', "Absolute", "Used for viewmodel animations"),
 					('OPT_ADDITIVE', "Additive", "Used for some idle animations"),
 					('OPT_RELATIVE', "Relative", "Used for most animations"),
-					('OPT_DELTA', "Delta", "Used for walk cycles")),
+					('OPT_DELTA',    "Delta",    "Used for walk cycles")),
 			default='OPT_RELATIVE',
 			)
 
