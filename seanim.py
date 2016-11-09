@@ -2,6 +2,7 @@ import time
 import struct
 
 LOG_READ_TIME=False
+LOG_WRITE_TIME=False
 LOG_ANIM_HEADER=False
 LOG_ANIM_BONES=False
 LOG_ANIM_BONE_MODIFIERS=False
@@ -339,6 +340,7 @@ class Anim:
 	def load(self, path):
 		if LOG_READ_TIME:
 			time_start = time.time()
+			print("Loading: '%s'" % path)
 
 		try:
 			file = open(path, "rb")
@@ -414,10 +416,12 @@ class Anim:
 		if LOG_READ_TIME:
 			time_end = time.time()
 			time_elapsed = time_end - time_start
-			print("Done! - Completed in %ss\n" % time_elapsed)
+			print("Done! - Completed in %ss" % time_elapsed)
 
 	def save(self, filepath=""):
-		print("Saving: '%s'" % filepath)
+		if LOG_WRITE_TIME:
+			time_start = time.time()
+			print("Saving: '%s'" % filepath)
 		
 		try:
 			file = open(filepath, "wb")
@@ -455,3 +459,8 @@ class Anim:
 				note.save(file, frame_t)
 
 		file.close()
+
+		if LOG_WRITE_TIME:
+			time_end = time.time()
+			time_elapsed = time_end - time_start
+			print("Done! - Completed in %ss" % time_elapsed)
