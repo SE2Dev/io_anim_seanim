@@ -3,13 +3,14 @@ import struct
 
 LOG_READ_TIME=False
 LOG_WRITE_TIME=False
+
 LOG_ANIM_HEADER=False
 LOG_ANIM_BONES=False
 LOG_ANIM_BONE_MODIFIERS=False
 LOG_ANIM_NOTES=False
 
 def enum(**enums):
-    return type('Enum', (), enums)
+	return type('Enum', (), enums)
 
 SEANIM_TYPE = enum(
 	SEANIM_TYPE_ABSOLUTE	= 0,
@@ -306,35 +307,29 @@ class Anim:
 
 	# Update the header flags based on the presence of certain keyframe / notetrack data
 	def update_metadata(self):
-		useLoc = False
-		useRot = False
-		useScale = False
-		useNotes = False
+		anim_locKeyCount = 0
+		anim_rotKeyCount = 0
+		anim_scaleKeyCount = 0
 
 		for bone in self.bones:
 			bone.locKeyCount = len(bone.posKeys)
 			bone.rotKeyCount = len(bone.rotKeys)
 			bone.scaleKeyCount = len(bone.scaleKeys)
 
-			if bone.locKeyCount:
-				useLoc = True
-			if bone.rotKeyCount:
-				useRot = True
-			if bone.scaleKeyCount:
-				useRot = True
+			anim_locKeyCount += bone.locKeyCount
+			anim_rotKeyCount += bone.rotKeyCount
+			anim_scaleKeyCount += bone.scaleKeyCount
 
-		if(useLoc):
-			self.header.dataPresenceFlags = self.header.dataPresenceFlags | SEANIM_PRESENCE_FLAGS.SEANIM_BONE_LOC
-
-		if(useRot):
-			self.header.dataPresenceFlags = self.header.dataPresenceFlags | SEANIM_PRESENCE_FLAGS.SEANIM_BONE_ROT
-
-		if(useScale):
-			self.header.dataPresenceFlags = self.header.dataPresenceFlags | SEANIM_PRESENCE_FLAGS.SEANIM_BONE_SCALE
+		if anim_locKeyCount:
+			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_BONE_LOC
+		if anim_rotKeyCount:
+			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_BONE_ROT
+		if anim_scaleKeyCount:
+			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_BONE_SCALE
 
 		self.header.noteCount = len(self.notes)
 		if(self.header.noteCount):
-			self.header.dataPresenceFlags = self.header.dataPresenceFlags | SEANIM_PRESENCE_FLAGS.SEANIM_PRESENCE_NOTE
+			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_PRESENCE_NOTE
 
 
 	def load(self, path):
@@ -464,3 +459,4 @@ class Anim:
 			time_end = time.time()
 			time_elapsed = time_end - time_start
 			print("Done! - Completed in %ss" % time_elapsed)
+ 
