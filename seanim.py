@@ -171,20 +171,9 @@ class KeyFrame:
 
 class Bone:
 	def __init__(self, file=None):
-		if file is not None:
-			self.load(file)
+		self.name=""
 
-	def load(self, file):
-		self.modifier = 0
-		self.useModifier = False
-
-		bytes = b''
-		for i in range(64):
-			b = file.read(1)
-			if b == b'\x00':
-				self.name = bytes.decode("utf-8")
-				break
-			bytes += b
+		self.flags = 0x0
 
 		self.locKeyCount = 0
 		self.rotKeyCount = 0
@@ -193,6 +182,21 @@ class Bone:
 		self.posKeys = []
 		self.rotKeys = []
 		self.scaleKeys = []
+
+		self.useModifier = False
+		self.modifier = 0
+
+		if file is not None:
+			self.load(file)
+
+	def load(self, file):
+		bytes = b''
+		for i in range(64):
+			b = file.read(1)
+			if b == b'\x00':
+				self.name = bytes.decode("utf-8")
+				break
+			bytes += b
 			
 	def loadData(self, file, frame_t , precision_t, useLoc=False, useRot=False, useScale=False):
 		# Read the flags for the bone
@@ -273,6 +277,9 @@ class Bone:
 
 class Note:
 	def __init__(self, file=None, frame_t=None):
+		self.frame = -1
+		self.name = ""
+
 		if file is not None:
 			self.load(file, frame_t)
 
@@ -298,10 +305,14 @@ class Note:
 		file.write(bytes)
 
 class Anim:
-	__info = Info()
-	header = Header()
-
 	def __init__(self, path=None):
+		self.__info = Info()
+		self.header = Header()
+
+		self.bones = []
+		self.boneAnimModifiers = []
+		self.notes = []
+		
 		if path is not None:
 			self.load(path)
 
