@@ -109,6 +109,7 @@ def load_seanim(self, context, progress, filepath=""):
 				fcurves = [ action.fcurves.new(data_path='pose.bones["%s"].%s' % (tag.name, 'location'), index=index, action_group=tag.name) for index in range(3) ]
 				keyCount = len(tag.posKeys)
 				for axis, fcurve in enumerate(fcurves):
+					fcurve.color_mode='AUTO_RGB'
 					fcurve.keyframe_points.add(keyCount + 1) # Add an extra keyframe for the control keyframe
 					fcurve.keyframe_points[0].co = Vector((-1, bone.location[axis])) # Add the control keyframe # Can be changed to Vector((-1, 0)) because Location 0,0,0 is rest pos
 				
@@ -137,6 +138,7 @@ def load_seanim(self, context, progress, filepath=""):
 				fcurves = [ action.fcurves.new(data_path='pose.bones["%s"].%s' % (tag.name, 'rotation_quaternion'), index=index, action_group=tag.name) for index in range(4) ]
 				keyCount = len(tag.rotKeys)
 				for axis, fcurve in enumerate(fcurves):
+					fcurve.color_mode='AUTO_YRGB'
 					fcurve.keyframe_points.add(keyCount + 1) # Add an extra keyframe for the control keyframe
 					fcurve.keyframe_points[0].co = Vector((-1, [1,0,0,0][axis])) # Add the control keyframe
 
