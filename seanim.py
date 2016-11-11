@@ -306,7 +306,7 @@ class Anim:
 			self.load(path)
 
 	# Update the header flags based on the presence of certain keyframe / notetrack data
-	def update_metadata(self):
+	def update_metadata(self, high_precision=False, looping=False):
 		anim_locKeyCount = 0
 		anim_rotKeyCount = 0
 		anim_scaleKeyCount = 0
@@ -330,6 +330,13 @@ class Anim:
 		self.header.noteCount = len(self.notes)
 		if(self.header.noteCount):
 			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_PRESENCE_NOTE
+		
+		if high_precision:
+			self.header.dataPropertyFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_SEANIM_PRECISION_HIGH
+		
+		if looping:
+			if high_precision:
+				self.header.animFlags |= SEANIM_FLAGS.SEANIM_LOOPED
 
 
 	def load(self, path):
