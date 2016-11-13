@@ -64,21 +64,21 @@ class Info:
 		file.write(bytes)
 
 class Header:
-	animType = SEANIM_TYPE.SEANIM_TYPE_RELATIVE # Relative is the default
-	animFlags = 0x0
-
-	dataPresenceFlags = 0x0
-	dataPropertyFlags = 0x0
-
-	framerate = 0
-	frameCount = 0
-
-	boneCount = 0
-	boneAnimModifierCount = 0
-
-	noteCount = 0
-
 	def __init__(self, file=None):
+		self.animType = SEANIM_TYPE.SEANIM_TYPE_RELATIVE # Relative is the default
+		self.animFlags = 0x0
+
+		self.dataPresenceFlags = 0x0
+		self.dataPropertyFlags = 0x0
+
+		self.framerate = 0
+		self.frameCount = 0
+
+		self.boneCount = 0
+		self.boneAnimModifierCount = 0
+
+		self.noteCount = 0
+
 		if file is not None:
 			self.load(file)
 
@@ -339,6 +339,7 @@ class Anim:
 			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_BONE_SCALE
 
 		self.header.noteCount = len(self.notes)
+
 		if(self.header.noteCount):
 			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_PRESENCE_NOTE
 		
