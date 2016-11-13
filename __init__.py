@@ -56,7 +56,7 @@ class ImportSEAnim(bpy.types.Operator, ImportHelper):
 
 		return False
 
-class ExportSEAnim(bpy.types.Operator, ImportHelper):
+class ExportSEAnim(bpy.types.Operator, ExportHelper):
 	bl_idname = "export_scene.seanim"
 	bl_label = "Export SEAnim"
 	bl_description = "Export an SEAnim"
