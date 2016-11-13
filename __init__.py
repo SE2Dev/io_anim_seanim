@@ -71,7 +71,7 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 			name="Anim Type",
 			description="Choose between two items",
 			items=(	('OPT_ABSOLUTE', "Absolute", "Used for viewmodel animations"),
-					('OPT_ADDITIVE', "Additive", "Used for some idle animations"),
+					#('OPT_ADDITIVE', "Additive", "Used for some idle animations"), # Currently Disabled
 					('OPT_RELATIVE', "Relative", "Used for most animations"),
 					('OPT_DELTA',    "Delta",    "Used for walk cycles")),
 			default='OPT_RELATIVE',
