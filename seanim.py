@@ -7,6 +7,7 @@ LOG_WRITE_TIME=False
 LOG_ANIM_HEADER=False
 LOG_ANIM_BONES=False
 LOG_ANIM_BONE_MODIFIERS=False
+LOG_ANIM_BONES_KEYS=False
 LOG_ANIM_NOTES=False
 
 def enum(**enums):
@@ -415,6 +416,13 @@ class Anim:
 				if LOG_ANIM_BONES:
 					print("Loading Data For Bone[%d] '%s'" % (i, self.bones[i].name))
 				self.bones[i].loadData(file, frame_t, precision_t, useLoc, useRot, useScale)
+				if LOG_ANIM_BONES_KEYS:
+					for key in self.bones[i].posKeys:
+						print("%s LOC %d %s" % (self.bones[i].name, key.frame, key.data))
+					for key in self.bones[i].rotKeys:
+						print("%s ROT %d %s" % (self.bones[i].name, key.frame, key.data))
+					for key in self.bones[i].scaleKeys:
+						print("%s SCALE %d %s" % (self.bones[i].name, key.frame, key.data))
 
 		self.notes = []
 		if self.header.dataPresenceFlags & SEANIM_PRESENCE_FLAGS.SEANIM_PRESENCE_NOTE:
