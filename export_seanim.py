@@ -24,8 +24,9 @@ def get_rot_quat(bone, anim_type):
 		mtx = bone.parent.matrix.to_3x3()
 		return (mtx.inverted() * bone.matrix.to_3x3()).to_quaternion()
 
-def export_action(self, context, action, filepath):
-	print("%s -> %s" % (action.name, filepath)) # DEBUG
+def export_action(self, context, progress, action, filepath):
+	#print("%s -> %s" % (action.name, filepath)) # DEBUG
+	
 	ob = bpy.context.object
 	frame_original = context.scene.frame_current
 
@@ -51,6 +52,7 @@ def export_action(self, context, action, filepath):
 
 	frames = {}
 
+	# Step 1: Analyzing Keyframes
 	# Resolve the relevent keyframe indices for loc, rot, and / or scale for each bone
 	for fc in action.fcurves:
 		try:
@@ -88,7 +90,9 @@ def export_action(self, context, action, filepath):
 	if len(frames) == 1:
 		anim.header.frameCount = 1
 
-	#print(frames)
+	# Step 2: Gathering Animation Data
+	progress.enter_substeps(len(frames))
+	
 	for frame, bones in frames.items():
 		context.scene.frame_set(frame) # Set frame directly
 
@@ -109,9 +113,13 @@ def export_action(self, context, action, filepath):
 			# Scale Isn't Supported Yet
 			if bone_info[3] == True:
 				do="nothing"
-			
-	context.scene.frame_set(frame_original)
 
+		progress.step()
+
+	context.scene.frame_set(frame_original)
+	progress.leave_substeps()
+
+	# Step 3: Finalizing Data
 	for name, bone in anim_bones.items():
 		anim.bones.append(bone)
 
@@ -121,15 +129,11 @@ def export_action(self, context, action, filepath):
 		note.name = pose_marker.name
 		anim.notes.append(note)
 
-	print("Saving %s" % filepath)
-	SEAnim.LOG_WRITE_TIME = True # DEBUG
+	# Step 4: Writing File
 	anim.save(filepath)
 
 	# DEBUG - Verify that the written file is valid
 	#SEAnim.LOG_ANIM_HEADER = True
-	#SEAnim.LOG_ANIM_BONES = True
-	#SEAnim.LOG_ANIM_BONES_KEYS = True
-	#SEAnim.LOG_ANIM_BONE_MODIFIERS = True
 	#SEAnim.Anim(filepath)
 
 def save(self, context):
@@ -140,11 +144,30 @@ def save(self, context):
 	prefix = os.path.basename(self.filepath)
 	path = os.path.dirname(self.filepath) + "\\"
 
+	filepath = self.filepath # Gets automatically updated per-action if self.use_actions is true, otherwise it stays the same
+
 	with ProgressReport(context.window_manager) as progress:
+		actions = []
 		if self.use_actions:
-			for action in bpy.data.actions:
-				export_action(self, context, action, path + prefix + action.name + ".seanim")
+			actions = bpy.data.actions
 		else:
-			export_action(self, context, bpy.context.object.animation_data.action, self.filepath)
+			prefix = ""
+			actions = [bpy.context.object.animation_data.action]
+
+		progress.enter_substeps(len(actions))
+		
+		for action in actions:
+			if self.use_actions:
+				filepath = path + prefix + action.name + ".seanim"
+
+			progress.enter_substeps(1, action.name)
+			try:
+				export_action(self, context, progress, action, filepath)
+			except Exception as e:
+				progress.leave_substeps("ERROR: " + repr(e))
+			else:
+				progress.leave_substeps()
+
+		progress.leave_substeps()
 
 	return {'FINISHED'}
