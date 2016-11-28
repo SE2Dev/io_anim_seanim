@@ -343,15 +343,14 @@ class Anim:
 
 		self.header.noteCount = len(self.notes)
 
-		if(self.header.noteCount):
+		if self.header.noteCount:
 			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_PRESENCE_NOTE
 		
 		if high_precision:
-			self.header.dataPropertyFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_SEANIM_PRECISION_HIGH
+			self.header.dataPropertyFlags |= SEANIM_PROPERTY_FLAGS.SEANIM_PRECISION_HIGH
 		
 		if looping:
-			if high_precision:
-				self.header.animFlags |= SEANIM_FLAGS.SEANIM_LOOPED
+			self.header.animFlags |= SEANIM_FLAGS.SEANIM_LOOPED
 
 
 	def load(self, path):
@@ -442,7 +441,7 @@ class Anim:
 			time_elapsed = time_end - time_start
 			print("Done! - Completed in %ss" % time_elapsed)
 
-	def save(self, filepath=""):
+	def save(self, filepath="", high_precision=False, looping=False):
 		if LOG_WRITE_TIME:
 			time_start = time.time()
 			print("Saving: '%s'" % filepath)
@@ -454,7 +453,7 @@ class Anim:
 			return
 
 		# Update the header flags, based on the presence of different keyframe types
-		self.update_metadata()
+		self.update_metadata(high_precision, looping)
 
 		self.__info.save(file)
 		self.header.save(file)
