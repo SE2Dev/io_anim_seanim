@@ -323,6 +323,8 @@ class Anim:
 		anim_rotKeyCount = 0
 		anim_scaleKeyCount = 0
 
+		self.header.boneCount = len(self.bones)
+
 		for bone in self.bones:
 			bone.locKeyCount = len(bone.posKeys)
 			bone.rotKeyCount = len(bone.rotKeys)
