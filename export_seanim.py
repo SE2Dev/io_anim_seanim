@@ -130,7 +130,7 @@ def export_action(self, context, progress, action, filepath):
 		anim.notes.append(note)
 
 	# Step 4: Writing File
-	anim.save(filepath)
+	anim.save(filepath, high_precision=self.high_precision, looping=self.is_looped)
 
 	# DEBUG - Verify that the written file is valid
 	#SEAnim.LOG_ANIM_HEADER = True

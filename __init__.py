@@ -77,11 +77,20 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 			default='OPT_RELATIVE',
 			)
 
+	high_precision = BoolProperty(
+		name="High Precision",
+		description="Use double precision floating point values for quaternions and vectors (Note: Increases file size)",
+		default=False)
+
+	is_looped = BoolProperty(
+		name="Looped",
+		description="Mark the animation as looping",
+		default=False)
+
 	use_actions = BoolProperty(
 			name="Export All Actions",
 			description="Export all actions to the target path",
-			default=False
-			)
+			default=False)
 
 	# PREFIX & SUFFIX Require "use_actions" to be true and are enabled / disabled from __update_use_actions
 	prefix = StringProperty(
@@ -97,7 +106,10 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 	def draw(self, context):
 		layout = self.layout
 		layout.prop(self, "anim_type")
-		
+
+		layout.prop(self, "high_precision")
+		layout.prop(self, "is_looped")
+
 		box = layout.box()
 		box.prop(self, "use_actions")
 		if(self.use_actions):
