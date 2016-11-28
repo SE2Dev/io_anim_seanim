@@ -85,12 +85,12 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 
 	# PREFIX & SUFFIX Require "use_actions" to be true and are enabled / disabled from __update_use_actions
 	prefix = StringProperty(
-		name="Prefix",
+		name="File Prefix",
 		description="The prefix string that is applied to the beginning of the filename for each exported action",
 		default="")
 
 	suffix = StringProperty(
-		name="Suffix",
+		name="File Suffix",
 		description="The suffix string that is applied to the end of the filename for each exported action",
 		default="")
 
