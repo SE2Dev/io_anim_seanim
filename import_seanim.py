@@ -117,7 +117,7 @@ def load_seanim(self, context, progress, filepath=""):
 					offset = Vector(key.data) * 1 / 2.54 # Currently the conversion is only here because I never added scaling options for Blender-CoD
 
 					# Viewanims are SEANIM_TYPE_ABSOLUTE - But all children of j_gun has a SEANIM_TYPE_RELATIVE override
-					if animType == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE:
+					if animType == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE and bone.parent is not None:
 						bone.matrix.translation = bone.parent.matrix*offset
 					else: # Use DELTA / RELATIVE results (ADDITIVE is unknown)
 						bone.matrix_basis.translation = offset
