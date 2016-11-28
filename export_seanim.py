@@ -141,7 +141,8 @@ def save(self, context):
 	if ob.type != 'ARMATURE':
 		return {'CANCELLED'}
 
-	prefix = os.path.basename(self.filepath)
+	prefix = self.prefix #os.path.basename(self.filepath)
+	suffix = self.suffix
 	path = os.path.dirname(self.filepath) + "\\"
 
 	filepath = self.filepath # Gets automatically updated per-action if self.use_actions is true, otherwise it stays the same
@@ -151,14 +152,13 @@ def save(self, context):
 		if self.use_actions:
 			actions = bpy.data.actions
 		else:
-			prefix = ""
 			actions = [bpy.context.object.animation_data.action]
 
 		progress.enter_substeps(len(actions))
 		
 		for action in actions:
 			if self.use_actions:
-				filepath = path + prefix + action.name + ".seanim"
+				filepath = path + prefix + action.name + suffix + ".seanim"
 
 			progress.enter_substeps(1, action.name)
 			try:

@@ -78,16 +78,37 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 			)
 
 	use_actions = BoolProperty(
-			name="Export Actions",
+			name="Export All Actions",
 			description="Export all actions to the target path",
-			default=False,
+			default=False
 			)
+
+	# PREFIX & SUFFIX Require "use_actions" to be true and are enabled / disabled from __update_use_actions
+	prefix = StringProperty(
+		name="Prefix",
+		description="The prefix string that is applied to the beginning of the filename for each exported action",
+		default="")
+
+	suffix = StringProperty(
+		name="Suffix",
+		description="The suffix string that is applied to the end of the filename for each exported action",
+		default="")
+
+	def draw(self, context):
+		layout = self.layout
+		layout.prop(self, "anim_type")
+		
+		box = layout.box()
+		box.prop(self, "use_actions")
+		if(self.use_actions):
+			box.prop(self, "prefix")
+			box.prop(self, "suffix")
 
 	def execute(self, context):
 		# print("Selected: " + context.active_object.name)
 		from . import export_seanim
 		return export_seanim.save(self, context)
-	
+
 	@classmethod
 	def poll(self, context):
 		if context.active_object is not None:
