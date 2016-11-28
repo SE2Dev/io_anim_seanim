@@ -8,7 +8,7 @@ from . import seanim as SEAnim
 # TODO: Add support for defining modifier bones for Absolute anims
 
 def get_loc_vec(bone, anim_type):
-	if animType == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE and bone.parent is not None:
+	if anim_type == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE and bone.parent is not None:
 		return bone.parent.matrix.inverted() * bone.matrix.translation
 	return bone.matrix_basis.translation
 
