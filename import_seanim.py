@@ -67,7 +67,7 @@ def load(self, context, filepath=""):
 	return {'FINISHED'}
 
 def load_seanim(self, context, progress, filepath=""):
-	anim = SEAnim.Read(filepath)
+	anim = SEAnim.Anim(filepath)
 
 	# Import the animation data
 	ob = bpy.context.object
@@ -109,6 +109,7 @@ def load_seanim(self, context, progress, filepath=""):
 				fcurves = [ action.fcurves.new(data_path='pose.bones["%s"].%s' % (tag.name, 'location'), index=index, action_group=tag.name) for index in range(3) ]
 				keyCount = len(tag.posKeys)
 				for axis, fcurve in enumerate(fcurves):
+					fcurve.color_mode='AUTO_RGB'
 					fcurve.keyframe_points.add(keyCount + 1) # Add an extra keyframe for the control keyframe
 					fcurve.keyframe_points[0].co = Vector((-1, bone.location[axis])) # Add the control keyframe # Can be changed to Vector((-1, 0)) because Location 0,0,0 is rest pos
 				
@@ -116,7 +117,7 @@ def load_seanim(self, context, progress, filepath=""):
 					offset = Vector(key.data) * 1 / 2.54 # Currently the conversion is only here because I never added scaling options for Blender-CoD
 
 					# Viewanims are SEANIM_TYPE_ABSOLUTE - But all children of j_gun has a SEANIM_TYPE_RELATIVE override
-					if animType == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE:
+					if animType == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE and bone.parent is not None:
 						bone.matrix.translation = bone.parent.matrix*offset
 					else: # Use DELTA / RELATIVE results (ADDITIVE is unknown)
 						bone.matrix_basis.translation = offset
@@ -137,6 +138,7 @@ def load_seanim(self, context, progress, filepath=""):
 				fcurves = [ action.fcurves.new(data_path='pose.bones["%s"].%s' % (tag.name, 'rotation_quaternion'), index=index, action_group=tag.name) for index in range(4) ]
 				keyCount = len(tag.rotKeys)
 				for axis, fcurve in enumerate(fcurves):
+					fcurve.color_mode='AUTO_YRGB'
 					fcurve.keyframe_points.add(keyCount + 1) # Add an extra keyframe for the control keyframe
 					fcurve.keyframe_points[0].co = Vector((-1, [1,0,0,0][axis])) # Add the control keyframe
 

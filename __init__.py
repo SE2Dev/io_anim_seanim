@@ -31,7 +31,7 @@ import time
 class ImportSEAnim(bpy.types.Operator, ImportHelper):
 	bl_idname = "import_scene.seanim"
 	bl_label = "Import SEAnim"
-	bl_description = "Import a SEAnim file"
+	bl_description = "Import one or more SEAnim files"
 	bl_options = {'PRESET'}
 
 	filename_ext = ".seanim"
@@ -44,27 +44,116 @@ class ImportSEAnim(bpy.types.Operator, ImportHelper):
 		from . import import_seanim
 		return import_seanim.load(self, context, **self.as_keywords(ignore=("filter_glob", "files")))
 
+	@classmethod
+	def poll(self, context):
+		if context.active_object is not None:
+			if context.active_object.type == 'ARMATURE':
+				return True
+			
+			# Currently Disabled
+			#elif context.active_object.parent is not None:
+			#	return context.active_object.parent.type == 'ARMATURE'
+
+		return False
+
+class ExportSEAnim(bpy.types.Operator, ExportHelper):
+	bl_idname = "export_scene.seanim"
+	bl_label = "Export SEAnim"
+	bl_description = "Export an SEAnim"
+	bl_options = {'PRESET'}
+
+	filename_ext = ".seanim"
+	filter_glob = StringProperty(default="*.seanim", options={'HIDDEN'})
+
+	files = CollectionProperty(type=bpy.types.PropertyGroup)
+
+	anim_type = EnumProperty(
+			name="Anim Type",
+			description="Choose between two items",
+			items=(	('OPT_ABSOLUTE', "Absolute", "Used for viewmodel animations"),
+					#('OPT_ADDITIVE', "Additive", "Used for some idle animations"), # Currently Disabled
+					('OPT_RELATIVE', "Relative", "Used for most animations"),
+					('OPT_DELTA',    "Delta",    "Used for walk cycles")),
+			default='OPT_RELATIVE',
+			)
+
+	high_precision = BoolProperty(
+		name="High Precision",
+		description="Use double precision floating point values for quaternions and vectors (Note: Increases file size)",
+		default=False)
+
+	is_looped = BoolProperty(
+		name="Looped",
+		description="Mark the animation as looping",
+		default=False)
+
+	use_actions = BoolProperty(
+			name="Export All Actions",
+			description="Export all actions to the target path",
+			default=False)
+
+	# PREFIX & SUFFIX Require "use_actions" to be true and are enabled / disabled from __update_use_actions
+	prefix = StringProperty(
+		name="File Prefix",
+		description="The prefix string that is applied to the beginning of the filename for each exported action",
+		default="")
+
+	suffix = StringProperty(
+		name="File Suffix",
+		description="The suffix string that is applied to the end of the filename for each exported action",
+		default="")
+
+	def draw(self, context):
+		layout = self.layout
+		layout.prop(self, "anim_type")
+
+		layout.prop(self, "high_precision")
+		layout.prop(self, "is_looped")
+
+		box = layout.box()
+		box.prop(self, "use_actions")
+		if(self.use_actions):
+			box.prop(self, "prefix")
+			box.prop(self, "suffix")
+
+	def execute(self, context):
+		# print("Selected: " + context.active_object.name)
+		from . import export_seanim
+		return export_seanim.save(self, context)
+
+	@classmethod
+	def poll(self, context):
+		if context.active_object is not None:
+			if context.active_object.type == 'ARMATURE':
+				return True
+			
+			# Currently Disabled
+			#elif context.active_object.parent is not None:
+			#	return context.active_object.parent.type == 'ARMATURE'
+			
+		return False
+
 def get_operator(idname):
 	op = bpy.ops
 	for attr in idname.split("."):
 		op = getattr(op, attr)
 	return op
 
-def bc_import_items_cb(self, context):
-	l = ((ImportSEAnim.bl_idname,'SEAnim (.seanim)',ImportSEAnim.bl_description))
-	bc_import_items_cb.lookup = {id: name for id, name, desc in l}
-	return l
-
 def menu_func_seanim_import(self, context):
 	self.layout.operator(ImportSEAnim.bl_idname, text="SEAnim (.seanim)")
+
+def menu_func_seanim_export(self, context):
+	self.layout.operator(ExportSEAnim.bl_idname, text="SEAnim (.seanim)")
 
 def register():
 	bpy.utils.register_module(__name__)
 	bpy.types.INFO_MT_file_import.append(menu_func_seanim_import)
+	bpy.types.INFO_MT_file_export.append(menu_func_seanim_export)
 
 def unregister():
 	bpy.utils.unregister_module(__name__)
 	bpy.types.INFO_MT_file_import.remove(menu_func_seanim_import)
+	bpy.types.INFO_MT_file_export.remove(menu_func_seanim_export)
  
 if __name__ == "__main__":
 	register()

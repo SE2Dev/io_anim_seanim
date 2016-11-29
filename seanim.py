@@ -2,13 +2,16 @@ import time
 import struct
 
 LOG_READ_TIME=False
+LOG_WRITE_TIME=False
+
 LOG_ANIM_HEADER=False
 LOG_ANIM_BONES=False
 LOG_ANIM_BONE_MODIFIERS=False
+LOG_ANIM_BONES_KEYS=False
 LOG_ANIM_NOTES=False
 
 def enum(**enums):
-    return type('Enum', (), enums)
+	return type('Enum', (), enums)
 
 SEANIM_TYPE = enum(
 	SEANIM_TYPE_ABSOLUTE	= 0,
@@ -36,20 +39,51 @@ SEANIM_FLAGS = enum(
 
 
 class Info:
-	def __init__(self, file):
+	version = 1
+	magic = b'SEAnim'
+
+	def __init__(self, file=None):
+		if file is not None:
+			self.load(file)
+
+	def load(self, file):
 		bytes = file.read(8)
 		data = struct.unpack('6ch', bytes)
 		
-		self.magic = b''
+		magic = b''
 		for i in range(6):
-			self.magic += data[i]
+			magic += data[i]
 		
-		assert self.magic == b'SEAnim'
+		version = data[6]
 		
-		self.version = data[6]
+		assert magic == self.magic
+		assert version == self.version
+	
+	def save(self, file):
+		bytes = self.magic
+		bytes += struct.pack('h', self.version)
+		file.write(bytes)
 
 class Header:
-	def __init__(self, file):
+	def __init__(self, file=None):
+		self.animType = SEANIM_TYPE.SEANIM_TYPE_RELATIVE # Relative is the default
+		self.animFlags = 0x0
+
+		self.dataPresenceFlags = 0x0
+		self.dataPropertyFlags = 0x0
+
+		self.framerate = 0
+		self.frameCount = 0
+
+		self.boneCount = 0
+		self.boneAnimModifierCount = 0
+
+		self.noteCount = 0
+
+		if file is not None:
+			self.load(file)
+
+	def load(self, file):
 		bytes = file.read(2)
 		data = struct.unpack('h', bytes)
 		
@@ -71,6 +105,20 @@ class Header:
 		# reserved = data[11]
 		# reserved = data[12]
 		self.noteCount = data[13]
+
+	def save(self, file):
+		bytes = struct.pack('=6BfII4BI',
+			self.animType, self.animFlags,
+			self.dataPresenceFlags, self.dataPropertyFlags,
+			0, 0,
+			self.framerate,
+			self.frameCount, self.boneCount,
+			self.boneAnimModifierCount, 0, 0, 0,
+			self.noteCount)
+
+		size = struct.pack('h', len(bytes) + 2)
+		file.write(size)
+		file.write(bytes)
 
 """
 	The Frame_t class is only ever used to get the size and format character used by frame indices in a given sanim file
@@ -115,7 +163,7 @@ class Precision_t:
 			self.char = 'f'
 
 """
-	A small classed used for holding keyframe data 
+	A small class used for holding keyframe data 
 """
 class KeyFrame:
 	def __init__(self, frame, data):
@@ -123,17 +171,10 @@ class KeyFrame:
 		self.data = data
 
 class Bone:
-	def __init__(self, file):
-		self.modifier = 0
-		self.useModifier = False
+	def __init__(self, file=None):
+		self.name=""
 
-		bytes = b''
-		for i in range(64):
-			b = file.read(1)
-			if b == b'\x00':
-				self.name = bytes.decode("utf-8")
-				break
-			bytes += b
+		self.flags = 0x0
 
 		self.locKeyCount = 0
 		self.rotKeyCount = 0
@@ -142,6 +183,21 @@ class Bone:
 		self.posKeys = []
 		self.rotKeys = []
 		self.scaleKeys = []
+
+		self.useModifier = False
+		self.modifier = 0
+
+		if file is not None:
+			self.load(file)
+
+	def load(self, file):
+		bytes = b''
+		for i in range(64):
+			b = file.read(1)
+			if b == b'\x00':
+				self.name = bytes.decode("utf-8")
+				break
+			bytes += b
 			
 	def loadData(self, file, frame_t , precision_t, useLoc=False, useRot=False, useScale=False):
 		# Read the flags for the bone
@@ -172,13 +228,9 @@ class Bone:
 			data = struct.unpack('%c' % frame_t.char, bytes)
 			self.rotKeyCount = data[0]
 
-			#print("  Reading %d rotKeys at 0x%X" % (self.rotKeyCount, file.tell() - 1))
-
 			for i in range(self.rotKeyCount):
-				#print("    rotKey[%d] at 0x%X" % (i, file.tell()))
-
+				
 				bytes = file.read(frame_t.size + 4 * precision_t.size)
-				#print("reading(%d) - actually read(%d)" % (frame_t.size + 4 * precision_t.size, len(bytes)))
 				data = struct.unpack('=%c4%c' % (frame_t.char, precision_t.char), bytes)
 
 				frame = data[0]
@@ -199,9 +251,40 @@ class Bone:
 				scale = (data[1], data[2], data[3])
 
 				self.scaleKeys.append( KeyFrame(frame, scale) )
+	
+	def save(self, file, frame_t, bone_t, precision_t, useLoc=False, useRot=False, useScale=False):
+		bytes = struct.pack("B", self.flags)
+		file.write(bytes)
+
+		if useLoc:
+			bytes = struct.pack('%c' % frame_t.char, len(self.posKeys))
+			file.write(bytes)
+			
+			for i, key in enumerate(self.posKeys):
+				bytes = struct.pack('=%c3%c' % (frame_t.char, precision_t.char), key.frame, key.data[0], key.data[1], key.data[2])
+				file.write(bytes)
+
+		if useRot:
+			bytes = struct.pack('%c' % frame_t.char, len(self.rotKeys))
+			file.write(bytes)
+
+			for i, key in enumerate(self.rotKeys):
+				bytes = struct.pack('=%c4%c' % (frame_t.char, precision_t.char), key.frame, key.data[0], key.data[1], key.data[2], key.data[3])
+				file.write(bytes)
+		
+		# TODO: Add support for scale
+		#if useScale:
+
 
 class Note:
-	def __init__(self, file, frame_t):
+	def __init__(self, file=None, frame_t=None):
+		self.frame = -1
+		self.name = ""
+
+		if file is not None:
+			self.load(file, frame_t)
+
+	def load(self, file, frame_t):
 		bytes = file.read(frame_t.size)
 		data = struct.unpack('%c' % frame_t.char, bytes)
 		
@@ -215,15 +298,70 @@ class Note:
 				break
 			bytes += b
 
+	def save(self, file, frame_t):
+		bytes = struct.pack('%c' % frame_t.char, self.frame)
+		file.write(bytes)
+
+		bytes = struct.pack('%ds' % (len(self.name) + 1), self.name.encode())
+		file.write(bytes)
+
 class Anim:
-	def __init__(self, path):
+	def __init__(self, path=None):
+		self.__info = Info()
+		self.header = Header()
+
+		self.bones = []
+		self.boneAnimModifiers = []
+		self.notes = []
+		
+		if path is not None:
+			self.load(path)
+
+	# Update the header flags based on the presence of certain keyframe / notetrack data
+	def update_metadata(self, high_precision=False, looping=False):
+		anim_locKeyCount = 0
+		anim_rotKeyCount = 0
+		anim_scaleKeyCount = 0
+
+		self.header.boneCount = len(self.bones)
+
+		for bone in self.bones:
+			bone.locKeyCount = len(bone.posKeys)
+			bone.rotKeyCount = len(bone.rotKeys)
+			bone.scaleKeyCount = len(bone.scaleKeys)
+
+			anim_locKeyCount += bone.locKeyCount
+			anim_rotKeyCount += bone.rotKeyCount
+			anim_scaleKeyCount += bone.scaleKeyCount
+
+		if anim_locKeyCount:
+			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_BONE_LOC
+		if anim_rotKeyCount:
+			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_BONE_ROT
+		if anim_scaleKeyCount:
+			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_BONE_SCALE
+
+		self.header.noteCount = len(self.notes)
+
+		if self.header.noteCount:
+			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_PRESENCE_NOTE
+		
+		if high_precision:
+			self.header.dataPropertyFlags |= SEANIM_PROPERTY_FLAGS.SEANIM_PRECISION_HIGH
+		
+		if looping:
+			self.header.animFlags |= SEANIM_FLAGS.SEANIM_LOOPED
+
+
+	def load(self, path):
 		if LOG_READ_TIME:
 			time_start = time.time()
+			print("Loading: '%s'" % path)
 
 		try:
 			file = open(path, "rb")
 		except IOError:
-			print("Could not open file for reading:\n%s" % path)
+			print("Could not open file for reading:\n %s" % path)
 			return
 
 		self.info = Info(file)
@@ -279,6 +417,13 @@ class Anim:
 				if LOG_ANIM_BONES:
 					print("Loading Data For Bone[%d] '%s'" % (i, self.bones[i].name))
 				self.bones[i].loadData(file, frame_t, precision_t, useLoc, useRot, useScale)
+				if LOG_ANIM_BONES_KEYS:
+					for key in self.bones[i].posKeys:
+						print("%s LOC %d %s" % (self.bones[i].name, key.frame, key.data))
+					for key in self.bones[i].rotKeys:
+						print("%s ROT %d %s" % (self.bones[i].name, key.frame, key.data))
+					for key in self.bones[i].scaleKeys:
+						print("%s SCALE %d %s" % (self.bones[i].name, key.frame, key.data))
 
 		self.notes = []
 		if self.header.dataPresenceFlags & SEANIM_PRESENCE_FLAGS.SEANIM_PRESENCE_NOTE:
@@ -294,7 +439,52 @@ class Anim:
 		if LOG_READ_TIME:
 			time_end = time.time()
 			time_elapsed = time_end - time_start
-			print("Done! - Completed in %ss\n" % time_elapsed)
+			print("Done! - Completed in %ss" % time_elapsed)
 
-def Read(path):
-	return Anim(path)
+	def save(self, filepath="", high_precision=False, looping=False):
+		if LOG_WRITE_TIME:
+			time_start = time.time()
+			print("Saving: '%s'" % filepath)
+		
+		try:
+			file = open(filepath, "wb")
+		except IOError:
+			print("Could not open file for writing:\n %s" % path)
+			return
+
+		# Update the header flags, based on the presence of different keyframe types
+		self.update_metadata(high_precision, looping)
+
+		self.__info.save(file)
+		self.header.save(file)
+		for bone in self.bones:
+			bytes = struct.pack('%ds' % (len(bone.name) + 1), bone.name.encode())
+			file.write(bytes)
+
+		useLoc = self.header.dataPresenceFlags & SEANIM_PRESENCE_FLAGS.SEANIM_BONE_LOC
+		useRot = self.header.dataPresenceFlags & SEANIM_PRESENCE_FLAGS.SEANIM_BONE_ROT
+		useScale = self.header.dataPresenceFlags & SEANIM_PRESENCE_FLAGS.SEANIM_BONE_SCALE
+
+		frame_t = Frame_t(self.header)
+		bone_t = Bone_t(self.header)
+		precision_t = Precision_t(self.header)
+
+		for index, bone in enumerate(self.bones):
+			if bone.useModifier:
+				bytes = struct.pack('%cB' % bone_t.char, index, bone.modifier)
+				file.write(bytes)
+
+		for bone in self.bones:
+			bone.save(file, frame_t, bone_t, precision_t, useLoc, useRot, useScale)
+
+		if self.header.dataPresenceFlags & SEANIM_PRESENCE_FLAGS.SEANIM_PRESENCE_NOTE:
+			for note in self.notes:
+				note.save(file, frame_t)
+
+		file.close()
+
+		if LOG_WRITE_TIME:
+			time_end = time.time()
+			time_elapsed = time_end - time_start
+			print("Done! - Completed in %ss" % time_elapsed)
+ 
