@@ -43,6 +43,10 @@ def export_action(self, context, progress, action, filepath):
 	anim.header.frameCount = int(action.frame_range[1]) - int(action.frame_range[0])
 	anim.header.framerate = context.scene.render.fps
 
+	use_keys_loc = 'LOC' in self.key_types
+	use_keys_rot = 'ROT' in self.key_types
+	use_keys_scale = 'SCALE' in self.key_types
+
 	anim_bones = {}
 
 	for pose_bone in ob.pose.bones:
@@ -62,18 +66,23 @@ def export_action(self, context, progress, action, filepath):
 			pose_bone = prop.data
 
 			if prop == pose_bone.location.owner:
+				if use_keys_loc == False:
+					continue
 				#print("LOC")
 				index = 0
 			elif prop == pose_bone.rotation_quaternion.owner or prop == pose_bone.rotation_euler.owner or prop == pose_bone.rotation_axis_angle.owner:
+				if use_keys_rot == False:
+					continue
 				#print("ROT")
 				index = 1
 			elif owner is pose_bone.scale.owner:
+				if use_keys_scale == False:
+					continue
 				#print("SCALE")
 				index = 2
-			else:
-				print("ERR: %s" % prop)
-				raise
-		except Exception as e: # If the fcurve isn't for a valid property, just skip it
+			else: # If the fcurve isn't for a valid property, just skip it
+				continue
+		except Exception as e:
 			#print("skipping : %s" % e) # DEBUG
 			pass
 		else:
@@ -100,18 +109,18 @@ def export_action(self, context, progress, action, filepath):
 			anim_bone = anim_bones[name]
 			pose_bone = bone_info[0] # the first element in the bone_info array is the PoseBone
 
-			if bone_info[1] == True:
+			if use_keys_loc and (bone_info[1] == True):
 				loc = get_loc_vec(pose_bone, self.anim_type) * 2.54 # Remove the multiplication later
 				key = SEAnim.KeyFrame(frame - frame_start, (loc.x, loc.y, loc.z))
 				anim_bone.posKeys.append(key)
 
-			if bone_info[2] == True:
+			if use_keys_rot and (bone_info[2] == True):
 				quat = get_rot_quat(pose_bone, self.anim_type)
 				key = SEAnim.KeyFrame(frame - frame_start, (quat.x, quat.y, quat.z, quat.w))
 				anim_bone.rotKeys.append(key)
 			
 			# Scale Isn't Supported Yet
-			if bone_info[3] == True:
+			if use_keys_scale and (bone_info[3] == True):
 				do="nothing"
 
 		progress.step()

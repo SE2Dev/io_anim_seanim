@@ -77,6 +77,17 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 			default='OPT_RELATIVE',
 			)
 
+	key_types = EnumProperty(
+			name="Keyframe Types",
+			description="Export specific keyframe types",
+			options={'ENUM_FLAG'},
+			items=(('LOC', "Location", ""),
+				   ('ROT', "Rotation", ""),
+				   ('SCALE', "Scale", ""),
+				   ),
+			default={'LOC', 'ROT', 'SCALE'},
+			)
+
 	high_precision = BoolProperty(
 		name="High Precision",
 		description="Use double precision floating point values for quaternions and vectors (Note: Increases file size)",
@@ -107,8 +118,12 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 		layout = self.layout
 		layout.prop(self, "anim_type")
 
-		layout.prop(self, "high_precision")
+		row = layout.row()
+		row.label("Include:")
+		row.prop(self, "key_types")
+
 		layout.prop(self, "is_looped")
+		layout.prop(self, "high_precision")
 
 		box = layout.box()
 		box.prop(self, "use_actions")
