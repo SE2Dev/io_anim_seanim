@@ -24,6 +24,17 @@ def get_rot_quat(bone, anim_type):
 		mtx = bone.parent.matrix.to_3x3()
 		return (mtx.inverted() * bone.matrix.to_3x3()).to_quaternion()
 
+# Resolve an SEAnim compatible anim_type integer from the anim_type EnumProperty
+def resolve_animtype(self):
+	at = self.anim_type
+	type_dict = {	'OPT_ABSOLUTE': SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE,
+					'OPT_ADDITIVE': SEAnim.SEANIM_TYPE.SEANIM_TYPE_ADDITIVE, 
+					'OPT_RELATIVE': SEAnim.SEANIM_TYPE.SEANIM_TYPE_RELATIVE, 
+					'OPT_DELTA': SEAnim.SEANIM_TYPE.SEANIM_TYPE_DELTA,
+	}
+
+	return type_dict.get(at)
+
 def export_action(self, context, progress, action, filepath):
 	#print("%s -> %s" % (action.name, filepath)) # DEBUG
 	
@@ -31,6 +42,10 @@ def export_action(self, context, progress, action, filepath):
 	frame_original = context.scene.frame_current
 
 	anim = SEAnim.Anim()
+	anim.header.animType = resolve_animtype(self)
+	if anim_type is None:
+		raise Exception('Could not resolve anim type', '%s' % self.anim_type) 
+		return # Just to be safe
 
 	"""
 		For whatever reason - an action with a single keyframe (ex: on frame 1) will have a range of (ex: Vector((1.0, 2.0)))
@@ -82,7 +97,7 @@ def export_action(self, context, progress, action, filepath):
 				index = 2
 			else: # If the fcurve isn't for a valid property, just skip it
 				continue
-		except Exception as e:
+		except Exception as e: # The fcurve probably isn't even for a pose bone - just skip it
 			#print("skipping : %s" % e) # DEBUG
 			pass
 		else:
@@ -110,12 +125,12 @@ def export_action(self, context, progress, action, filepath):
 			pose_bone = bone_info[0] # the first element in the bone_info array is the PoseBone
 
 			if use_keys_loc and (bone_info[1] == True):
-				loc = get_loc_vec(pose_bone, self.anim_type) * 2.54 # Remove the multiplication later
+				loc = get_loc_vec(pose_bone, anim.header.animType) * 2.54 # Remove the multiplication later
 				key = SEAnim.KeyFrame(frame - frame_start, (loc.x, loc.y, loc.z))
 				anim_bone.posKeys.append(key)
 
 			if use_keys_rot and (bone_info[2] == True):
-				quat = get_rot_quat(pose_bone, self.anim_type)
+				quat = get_rot_quat(pose_bone, anim.header.animType)
 				key = SEAnim.KeyFrame(frame - frame_start, (quat.x, quat.y, quat.z, quat.w))
 				anim_bone.rotKeys.append(key)
 			
