@@ -217,6 +217,6 @@ def save(self, context):
 			else:
 				progress.leave_substeps()
 
-		progress.leave_substeps()
+		progress.leave_substeps("Finished!")
 
 	return {'FINISHED'}
