@@ -83,10 +83,15 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 			options={'ENUM_FLAG'},
 			items=(('LOC', "Location", ""),
 				   ('ROT', "Rotation", ""),
-				   ('SCALE', "Scale", ""),
+				   #('SCALE', "Scale", ""), # Not Currently Supported
 				   ),
-			default={'LOC', 'ROT', 'SCALE'},
+			default={'LOC', 'ROT'}, #, 'SCALE'},
 			)
+
+	every_frame = BoolProperty(
+		name="Every Frame",
+		description="Automatically generate keyframes for every single frame",
+		default=False)
 
 	high_precision = BoolProperty(
 		name="High Precision",
@@ -95,7 +100,7 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 
 	is_looped = BoolProperty(
 		name="Looped",
-		description="Mark the animation as looping",
+		description="Mark the animation as a looping animation",
 		default=False)
 
 	use_actions = BoolProperty(
@@ -122,8 +127,9 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 		row.label("Include:")
 		row.prop(self, "key_types")
 
-		layout.prop(self, "is_looped")
 		layout.prop(self, "high_precision")
+		layout.prop(self, "is_looped")
+		layout.prop(self, "every_frame")
 
 		box = layout.box()
 		box.prop(self, "use_actions")
@@ -138,8 +144,9 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 
 	@classmethod
 	def poll(self, context):
-		if context.active_object is not None:
-			if context.active_object.type == 'ARMATURE':
+		ob = context.active_object
+		if ob is not None:
+			if ob.type == 'ARMATURE' and ob.animation_data is not None:
 				return True
 			
 			# Currently Disabled

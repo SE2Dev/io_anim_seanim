@@ -7,6 +7,8 @@ from . import seanim as SEAnim
 
 # TODO: Add support for defining modifier bones for Absolute anims
 
+g_scale = 2.54 # This is the scale multiplier for exported anims - currently this is only here to ensure compatibility with Blender-CoD 
+
 def get_loc_vec(bone, anim_type):
 	if anim_type == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE and bone.parent is not None:
 		return bone.parent.matrix.inverted() * bone.matrix.translation
@@ -23,6 +25,16 @@ def get_rot_quat(bone, anim_type):
 	else:
 		mtx = bone.parent.matrix.to_3x3()
 		return (mtx.inverted() * bone.matrix.to_3x3()).to_quaternion()
+
+# Generate a SEAnim compatible LOC keyframe from a given pose bone
+def gen_loc_key(frame, pose_bone, anim_type):
+	loc = get_loc_vec(pose_bone, anim_type) * g_scale # Remove the multiplication later
+	return SEAnim.KeyFrame(frame, (loc.x, loc.y, loc.z))
+
+# Generate a SEAnim compatible ROT keyframe from a given pose bone
+def gen_rot_key(frame, pose_bone, anim_type):
+	quat = get_rot_quat(pose_bone, anim_type)
+	return SEAnim.KeyFrame(frame, (quat.x, quat.y, quat.z, quat.w))
 
 # Resolve an SEAnim compatible anim_type integer from the anim_type EnumProperty
 def resolve_animtype(self):
@@ -115,30 +127,43 @@ def export_action(self, context, progress, action, filepath):
 		anim.header.frameCount = 1
 
 	# Step 2: Gathering Animation Data
-	progress.enter_substeps(len(frames))
-	
-	for frame, bones in frames.items():
-		context.scene.frame_set(frame) # Set frame directly
-
-		for name, bone_info in bones.items():
-			anim_bone = anim_bones[name]
-			pose_bone = bone_info[0] # the first element in the bone_info array is the PoseBone
-
-			if use_keys_loc and (bone_info[1] == True):
-				loc = get_loc_vec(pose_bone, anim.header.animType) * 2.54 # Remove the multiplication later
-				key = SEAnim.KeyFrame(frame - frame_start, (loc.x, loc.y, loc.z))
-				anim_bone.posKeys.append(key)
-
-			if use_keys_rot and (bone_info[2] == True):
-				quat = get_rot_quat(pose_bone, anim.header.animType)
-				key = SEAnim.KeyFrame(frame - frame_start, (quat.x, quat.y, quat.z, quat.w))
-				anim_bone.rotKeys.append(key)
+	if self.every_frame == True: # Export every keyframe
+		progress.enter_substeps(anim.header.frameCount)
+		for frame in range(anim.header.frameCount):
+			context.scene.frame_set(frame+frame_start)
 			
-			# Scale Isn't Supported Yet
-			if use_keys_scale and (bone_info[3] == True):
-				do="nothing"
+			for name, anim_bone in anim_bones.items():
+				pose_bone = ob.pose.bones.get(name)
+				if pose_bone is None:
+					continue
+				
+				if use_keys_loc:
+					anim_bone.posKeys.append( gen_loc_key(frame, pose_bone, anim.header.animType) )
+				if use_keys_rot:
+					anim_bone.rotKeys.append( gen_rot_key(frame, pose_bone, anim.header.animType) )
+				if use_keys_scale:
+					foo="scale isn't support yet"
 
-		progress.step()
+			progress.step()
+
+	else: # Only export keyed frames
+		progress.enter_substeps(len(frames))
+
+		for frame, bones in frames.items():
+			context.scene.frame_set(frame)
+
+			for name, bone_info in bones.items():
+				anim_bone = anim_bones[name]
+				pose_bone = bone_info[0] # the first element in the bone_info array is the PoseBone
+
+				if use_keys_loc and (bone_info[1] == True):
+					anim_bone.posKeys.append( gen_loc_key(frame-frame_start, pose_bone, anim.header.animType) )
+				if use_keys_rot and (bone_info[2] == True):
+					anim_bone.rotKeys.append( gen_rot_key(frame-frame_start, pose_bone, anim.header.animType) )
+				if use_keys_scale and (bone_info[3] == True):
+					foo="scale isn't support yet"
+
+			progress.step()
 
 	context.scene.frame_set(frame_original)
 	progress.leave_substeps()
