@@ -144,8 +144,9 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 
 	@classmethod
 	def poll(self, context):
-		if context.active_object is not None:
-			if context.active_object.type == 'ARMATURE':
+		ob = context.active_object
+		if ob is not None:
+			if ob.type == 'ARMATURE' and ob.animation_data is not None:
 				return True
 			
 			# Currently Disabled
