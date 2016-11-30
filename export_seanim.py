@@ -43,7 +43,7 @@ def export_action(self, context, progress, action, filepath):
 
 	anim = SEAnim.Anim()
 	anim.header.animType = resolve_animtype(self)
-	if anim_type is None:
+	if anim.header.animType is None:
 		raise Exception('Could not resolve anim type', '%s' % self.anim_type) 
 		return # Just to be safe
 
