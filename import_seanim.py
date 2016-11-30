@@ -4,6 +4,8 @@ from progress_report import ProgressReport, ProgressReportSubstep
 import os
 from . import seanim as SEAnim
 
+g_scale = 1 / 2.54 # This is the scale multiplier for exported anims - currently this is only here to ensure compatibility with Blender-CoD 
+
 # A list (in order of priority) of bone names to automatically search for when determining which bone to use as the root for delta anims
 DeltaRootBones = ["tag_origin"]
 
@@ -114,7 +116,7 @@ def load_seanim(self, context, progress, filepath=""):
 					fcurve.keyframe_points[0].co = Vector((-1, bone.location[axis])) # Add the control keyframe # Can be changed to Vector((-1, 0)) because Location 0,0,0 is rest pos
 				
 				for k, key in enumerate(tag.posKeys):
-					offset = Vector(key.data) * 1 / 2.54 # Currently the conversion is only here because I never added scaling options for Blender-CoD
+					offset = Vector(key.data) * g_scale # Currently the conversion is only here because I never added scaling options for Blender-CoD
 
 					# Viewanims are SEANIM_TYPE_ABSOLUTE - But all children of j_gun has a SEANIM_TYPE_RELATIVE override
 					if animType == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE and bone.parent is not None:

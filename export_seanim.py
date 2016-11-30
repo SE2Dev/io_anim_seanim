@@ -7,6 +7,8 @@ from . import seanim as SEAnim
 
 # TODO: Add support for defining modifier bones for Absolute anims
 
+g_scale = 2.54 # This is the scale multiplier for exported anims - currently this is only here to ensure compatibility with Blender-CoD 
+
 def get_loc_vec(bone, anim_type):
 	if anim_type == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE and bone.parent is not None:
 		return bone.parent.matrix.inverted() * bone.matrix.translation
@@ -125,7 +127,7 @@ def export_action(self, context, progress, action, filepath):
 			pose_bone = bone_info[0] # the first element in the bone_info array is the PoseBone
 
 			if use_keys_loc and (bone_info[1] == True):
-				loc = get_loc_vec(pose_bone, anim.header.animType) * 2.54 # Remove the multiplication later
+				loc = get_loc_vec(pose_bone, anim.header.animType) * g_scale # Remove the multiplication later
 				key = SEAnim.KeyFrame(frame - frame_start, (loc.x, loc.y, loc.z))
 				anim_bone.posKeys.append(key)
 
