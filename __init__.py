@@ -88,6 +88,11 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 			default={'LOC', 'ROT'}, #, 'SCALE'},
 			)
 
+	every_frame = BoolProperty(
+		name="Every Frame",
+		description="Automatically generate keyframes for every single frame",
+		default=False)
+
 	high_precision = BoolProperty(
 		name="High Precision",
 		description="Use double precision floating point values for quaternions and vectors (Note: Increases file size)",
@@ -95,7 +100,7 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 
 	is_looped = BoolProperty(
 		name="Looped",
-		description="Mark the animation as looping",
+		description="Mark the animation as a looping animation",
 		default=False)
 
 	use_actions = BoolProperty(
@@ -122,8 +127,9 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 		row.label("Include:")
 		row.prop(self, "key_types")
 
-		layout.prop(self, "is_looped")
 		layout.prop(self, "high_precision")
+		layout.prop(self, "is_looped")
+		layout.prop(self, "every_frame")
 
 		box = layout.box()
 		box.prop(self, "use_actions")
