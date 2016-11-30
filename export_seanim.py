@@ -55,7 +55,7 @@ def export_action(self, context, progress, action, filepath):
 		For actions that only have keyframes on a single frame, this must be corrected later...
 	"""
 	frame_start = int(action.frame_range[0])
-	anim.header.frameCount = int(action.frame_range[1]) - int(action.frame_range[0])
+	anim.header.frameCount = int(action.frame_range[1]) - int(action.frame_range[0]) + 1
 	anim.header.framerate = context.scene.render.fps
 
 	use_keys_loc = 'LOC' in self.key_types
