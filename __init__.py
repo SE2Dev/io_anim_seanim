@@ -83,9 +83,9 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 			options={'ENUM_FLAG'},
 			items=(('LOC', "Location", ""),
 				   ('ROT', "Rotation", ""),
-				   ('SCALE', "Scale", ""),
+				   #('SCALE', "Scale", ""), # Not Currently Supported
 				   ),
-			default={'LOC', 'ROT', 'SCALE'},
+			default={'LOC', 'ROT'}, #, 'SCALE'},
 			)
 
 	high_precision = BoolProperty(
