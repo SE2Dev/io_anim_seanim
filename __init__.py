@@ -5,10 +5,10 @@ bl_info = {
 	"blender": (2, 62, 3),
 	"location": "File > Import",
 	"description": "Import SEAnim",
-	"warning": "Alpha version, please report any bugs!",
-	"wiki_url": "",
-	"tracker_url": "",
-	"support": "TESTING",
+	"warning": "ADDITIVE animations are not currently supported",
+	"wiki_url": "https://github.com/SE2Dev/io_anim_seanim",
+	"tracker_url": "https://github.com/SE2Dev/io_anim_seanim/issues",
+	"support": "COMMUNITY",
 	"category": "Import-Export"
 }
 
