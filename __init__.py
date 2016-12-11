@@ -1,7 +1,7 @@
 bl_info = {
 	"name": "SEAnim Support",
 	"author": "SE2Dev", 
-	"version": (0, 1, 0),
+	"version": (0, 2, 0),
 	"blender": (2, 62, 3),
 	"location": "File > Import",
 	"description": "Import SEAnim",
