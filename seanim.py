@@ -38,11 +38,11 @@ SEANIM_FLAGS = enum(
 	SEANIM_LOOPED = 1 << 0)
 
 
-class Info:
-	version = 1
-	magic = b'SEAnim'
-
+class Info(object):
+	__slots__ = ('version', 'magic')
 	def __init__(self, file=None):
+		self.version = 1
+		self.magic = b'SEAnim'
 		if file is not None:
 			self.load(file)
 
@@ -64,7 +64,14 @@ class Info:
 		bytes += struct.pack('h', self.version)
 		file.write(bytes)
 
-class Header:
+class Header(object):
+	__slots__ = (
+					'animType', 'animFlags',
+					'dataPresenceFlags', 'dataPropertyFlags',
+					'framerate', 'frameCount',
+					'boneCount', 'boneAnimModifierCount',
+					'noteCount'
+				)
 	def __init__(self, file=None):
 		self.animType = SEANIM_TYPE.SEANIM_TYPE_RELATIVE # Relative is the default
 		self.animFlags = 0x0
@@ -123,7 +130,8 @@ class Header:
 """
 	The Frame_t class is only ever used to get the size and format character used by frame indices in a given sanim file
 """
-class Frame_t:
+class Frame_t(object):
+	__slots__ = ('size', 'char')
 	def __init__(self, header):
 		if header.frameCount < 0xFF:
 			self.size = 1
@@ -138,7 +146,8 @@ class Frame_t:
 """
 	The Bone_t class is only ever used to get the size and format character used by frame indices in a given sanim file
 """
-class Bone_t:
+class Bone_t(object):
+	__slots__ = ('size', 'char')
 	def __init__(self, header):
 		if header.boneCount < 0xFF:
 			self.size = 1
@@ -153,7 +162,8 @@ class Bone_t:
 """
 	The Precision_t class is only ever used to get the size and format character used by vec3_t, quat_t, etc. in a given sanim file
 """
-class Precision_t:
+class Precision_t(object):
+	__slots__ = ('size', 'char')
 	def __init__(self, header):
 		if header.dataPropertyFlags & SEANIM_PROPERTY_FLAGS.SEANIM_PRECISION_HIGH:
 			self.size = 8
@@ -165,12 +175,19 @@ class Precision_t:
 """
 	A small class used for holding keyframe data 
 """
-class KeyFrame:
+class KeyFrame(object):
+	__slots__ = ('frame', 'data')
 	def __init__(self, frame, data):
 		self.frame = frame
 		self.data = data
 
-class Bone:
+class Bone(object):
+	__slots__ = (
+					'name', 'flags',
+					'locKeyCount', 'rotKeyCount', 'scaleKeyCount',
+					'posKeys', 'rotKeys', 'scaleKeys',
+					'useModifier', 'modifier'
+				)
 	def __init__(self, file=None):
 		self.name=""
 
@@ -276,7 +293,8 @@ class Bone:
 		#if useScale:
 
 
-class Note:
+class Note(object):
+	__slots__ = ('frame', 'name')
 	def __init__(self, file=None, frame_t=None):
 		self.frame = -1
 		self.name = ""
@@ -305,7 +323,8 @@ class Note:
 		bytes = struct.pack('%ds' % (len(self.name) + 1), self.name.encode())
 		file.write(bytes)
 
-class Anim:
+class Anim(object):
+	__slots__ = ('__info', 'info', 'header', 'bones', 'boneAnimModifiers', 'notes')
 	def __init__(self, path=None):
 		self.__info = Info()
 		self.header = Header()
