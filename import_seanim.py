@@ -41,7 +41,7 @@ def ResolvePotentialAnimTypeOverride(bone, boneAnimModifiers):
 def load(self, context, filepath=""):
 	ob = bpy.context.object
 	if ob.type != 'ARMATURE':
-		return {'CANCELLED'}
+		return "An armature must be selected!"
 
 	path = os.path.dirname(filepath) + "\\"
 
@@ -65,8 +65,6 @@ def load(self, context, filepath=""):
 		
 		# Print when all files have been imported 
 		progress.leave_substeps("Finished!")
-
-	return {'FINISHED'}
 
 def load_seanim(self, context, progress, filepath=""):
 	anim = SEAnim.Anim(filepath)
@@ -184,5 +182,3 @@ def load_seanim(self, context, progress, filepath=""):
 
 	bpy.context.scene.update()
 	bpy.ops.object.mode_set(mode='POSE')
-
-	return {'FINISHED'}

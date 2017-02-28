@@ -188,7 +188,7 @@ def export_action(self, context, progress, action, filepath):
 def save(self, context):
 	ob = bpy.context.object
 	if ob.type != 'ARMATURE':
-		return {'CANCELLED'}
+		return "An armature must be selected!"
 
 	prefix = self.prefix #os.path.basename(self.filepath)
 	suffix = self.suffix
@@ -218,5 +218,3 @@ def save(self, context):
 				progress.leave_substeps()
 
 		progress.leave_substeps("Finished!")
-
-	return {'FINISHED'}
