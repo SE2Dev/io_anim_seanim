@@ -228,8 +228,6 @@ class Bone(object):
 			data = struct.unpack('%c' % frame_t.char, bytes)
 			self.locKeyCount = data[0]
 
-			#print("  Reading %d locKeys at 0x%X" % (self.locKeyCount, file.tell() - 1))
-
 			for i in range(self.locKeyCount):
 				bytes = file.read(frame_t.size + 3 * precision_t.size)
 				data = struct.unpack('=%c3%c' % (frame_t.char, precision_t.char), bytes)
@@ -289,8 +287,13 @@ class Bone(object):
 				bytes = struct.pack('=%c4%c' % (frame_t.char, precision_t.char), key.frame, key.data[0], key.data[1], key.data[2], key.data[3])
 				file.write(bytes)
 		
-		# TODO: Add support for scale
-		#if useScale:
+		if useScale:
+			bytes = struct.pack('%c' % frame_t.char, len(self.scaleKeys))
+			file.write(bytes)
+
+			for i, key in enumerate(self.scaleKeys):
+				bytes = struct.pack('=%c3%c' % (frame_t.char, precision_t.char), key.frame, key.data[0], key.data[1], key.data[2])
+				file.write(bytes)
 
 
 class Note(object):
