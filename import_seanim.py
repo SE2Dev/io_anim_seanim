@@ -165,9 +165,32 @@ def load_seanim(self, context, progress, filepath=""):
 				# Update the FCurves
 				for fc in fcurves:
 					fc.update()
+
+			# Import the scale keyframes
+			if len(tag.scaleKeys):
+				bone.matrix_basis.identity()
+
+				fcurves = [ action.fcurves.new(data_path='pose.bones["%s"].%s' % (tag.name, 'scale'), index=index, action_group=tag.name) for index in range(3) ]
+				keyCount = len(tag.scaleKeys)
+				for axis, fcurve in enumerate(fcurves):
+					fcurve.color_mode='AUTO_RGB'
+					fcurve.keyframe_points.add(keyCount + 1) # Add an extra keyframe for the control keyframe
+					fcurve.keyframe_points[0].co = Vector((-1, bone.scale[axis])) # Add the control keyframe
+				
+				for k, key in enumerate(tag.scaleKeys):
+					scale = Vector(key.data)
+
+					for axis, fcurve in enumerate(fcurves):
+						fcurve.keyframe_points[k + 1].co = Vector((key.frame, scale[axis]))
+						fcurve.keyframe_points[k + 1].interpolation = 'LINEAR'
+
+				# Update the FCurves
+				for fc in fcurves:
+					fc.update()
 			
 			bone.keyframe_delete(data_path="location", frame=scene.frame_start-1, group=tag.name)
 			bone.keyframe_delete(data_path="rotation_quaternion", frame=scene.frame_start-1, group=tag.name)
+			bone.keyframe_delete(data_path="scale", frame=scene.frame_start-1, group=tag.name)
 
 			# Remove any leftover temporary transformations for this bone
 			bone.matrix_basis.identity()

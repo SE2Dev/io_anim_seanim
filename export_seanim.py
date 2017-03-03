@@ -36,6 +36,10 @@ def gen_rot_key(frame, pose_bone, anim_type):
 	quat = get_rot_quat(pose_bone, anim_type)
 	return SEAnim.KeyFrame(frame, (quat.x, quat.y, quat.z, quat.w))
 
+# Generate an SEAnim compatible SCALE keyframe from a given pose bone
+	scale = tuple(pose_bone.scale)
+	return SEAnim.KeyFrame(frame, scale)
+
 # Resolve an SEAnim compatible anim_type integer from the anim_type EnumProperty
 def resolve_animtype(self):
 	at = self.anim_type
@@ -142,7 +146,7 @@ def export_action(self, context, progress, action, filepath):
 				if use_keys_rot:
 					anim_bone.rotKeys.append( gen_rot_key(frame, pose_bone, anim.header.animType) )
 				if use_keys_scale:
-					foo="scale isn't support yet"
+					anim_bone.scaleKeys.append( gen_scale_key(frame, pose_bone, anim.header.animType) )
 
 			progress.step()
 
@@ -161,7 +165,7 @@ def export_action(self, context, progress, action, filepath):
 				if use_keys_rot and (bone_info[2] == True):
 					anim_bone.rotKeys.append( gen_rot_key(frame-frame_start, pose_bone, anim.header.animType) )
 				if use_keys_scale and (bone_info[3] == True):
-					foo="scale isn't support yet"
+					anim_bone.scaleKeys.append( gen_scale_key(frame-frame_start, pose_bone, anim.header.animType) )
 
 			progress.step()
 
