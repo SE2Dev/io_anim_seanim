@@ -1,7 +1,7 @@
 bl_info = {
 	"name": "SEAnim Support",
 	"author": "SE2Dev", 
-	"version": (0, 2, 1),
+	"version": (0, 3, 0),
 	"blender": (2, 62, 3),
 	"location": "File > Import",
 	"description": "Import SEAnim",
@@ -42,7 +42,14 @@ class ImportSEAnim(bpy.types.Operator, ImportHelper):
 	def execute(self, context):
 		# print("Selected: " + context.active_object.name)
 		from . import import_seanim
-		return import_seanim.load(self, context, **self.as_keywords(ignore=("filter_glob", "files")))
+		start_time = time.clock()
+		result = import_seanim.load(self, context, **self.as_keywords(ignore=("filter_glob", "files")))
+		if not result:
+			self.report({'INFO'}, "Import finished in %.4f sec." % (time.clock() - start_time))
+			return {'FINISHED'}
+		else:
+			self.report({'ERROR'}, result)
+			return {'CANCELLED'}
 
 	@classmethod
 	def poll(self, context):
@@ -140,7 +147,14 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
 	def execute(self, context):
 		# print("Selected: " + context.active_object.name)
 		from . import export_seanim
-		return export_seanim.save(self, context)
+		start_time = time.clock()
+		result = export_seanim.save(self, context)
+		if not result:
+			self.report({'INFO'}, "Export finished in %.4f sec." % (time.clock() - start_time))
+			return {'FINISHED'}
+		else:
+			self.report({'ERROR'}, result)
+			return {'CANCELLED'}
 
 	@classmethod
 	def poll(self, context):
