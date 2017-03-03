@@ -149,7 +149,7 @@ class Frame_t(object):
 class Bone_t(object):
 	__slots__ = ('size', 'char')
 	def __init__(self, header):
-		if header.boneCount < 0xFF:
+		if header.boneCount <= 0xFF:
 			self.size = 1
 			self.char = 'B'
 		elif header.boneCount <= 0xFFFF:
@@ -377,11 +377,6 @@ class Anim(object):
 		for note in self.notes:
 			max_frame_index = max(max_frame_index, note.frame)
 
-		# FrameCount represents the length of the animation in frames
-		# and since all animations start at frame 0 - we simply grab
-		# the max frame number (from keys / notes / etc.) and add 1 to it
-		self.header.frameCount = max_frame_index + 1
-
 		self.header.noteCount = len(self.notes)
 
 		if self.header.noteCount:
@@ -393,6 +388,10 @@ class Anim(object):
 		if looping:
 			self.header.animFlags |= SEANIM_FLAGS.SEANIM_LOOPED
 
+		# FrameCount represents the length of the animation in frames
+		# and since all animations start at frame 0 - we simply grab
+		# the max frame number (from keys / notes / etc.) and add 1 to it
+		self.header.frameCount = max_frame_index + 1
 
 	def load(self, path):
 		if LOG_READ_TIME:
