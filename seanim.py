@@ -133,10 +133,10 @@ class Header(object):
 class Frame_t(object):
 	__slots__ = ('size', 'char')
 	def __init__(self, header):
-		if header.frameCount < 0xFF:
+		if header.frameCount - 1 <= 0xFF:
 			self.size = 1
 			self.char = 'B'
-		elif header.frameCount <= 0xFFFF:
+		elif header.frameCount - 1 <= 0xFFFF:
 			self.size = 2
 			self.char = 'h'
 		else: #if header.frameCount <= 0xFFFFFFFF:
@@ -343,6 +343,8 @@ class Anim(object):
 		anim_scaleKeyCount = 0
 
 		self.header.boneCount = len(self.bones)
+		
+		max_frame_index = 0
 
 		for bone in self.bones:
 			bone.locKeyCount = len(bone.posKeys)
@@ -353,12 +355,29 @@ class Anim(object):
 			anim_rotKeyCount += bone.rotKeyCount
 			anim_scaleKeyCount += bone.scaleKeyCount
 
+			for key in bone.posKeys:
+				max_frame_index = max(max_frame_index, key.frame)
+			
+			for key in bone.rotKeys:
+				max_frame_index = max(max_frame_index, key.frame)
+
+			for key in bone.scaleKeys:
+				max_frame_index = max(max_frame_index, key.frame)
+
 		if anim_locKeyCount:
 			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_BONE_LOC
 		if anim_rotKeyCount:
 			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_BONE_ROT
 		if anim_scaleKeyCount:
 			self.header.dataPresenceFlags |= SEANIM_PRESENCE_FLAGS.SEANIM_BONE_SCALE
+
+		for note in self.notes:
+			max_frame_index = max(max_frame_index, note.frame)
+
+		# FrameCount represents the length of the animation in frames
+		# and since all animations start at frame 0 - we simply grab
+		# the max frame number (from keys / notes / etc.) and add 1 to it
+		self.header.frameCount = max_frame_index + 1
 
 		self.header.noteCount = len(self.notes)
 
