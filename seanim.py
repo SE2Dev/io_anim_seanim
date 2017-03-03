@@ -257,7 +257,7 @@ class Bone(object):
 		if useScale:
 			bytes = file.read(frame_t.size)
 			data = struct.unpack('%c' % frame_t.char, bytes)
-			self.rotKeyCount = data[0]
+			self.scaleKeyCount = data[0]
 			for i in range(self.scaleKeyCount):
 				bytes = file.read(frame_t.size + 3 * precision_t.size)
 				data = struct.unpack('=%c3%c' % (frame_t.char, precision_t.char), bytes)
