@@ -1,8 +1,8 @@
 bl_info = {
 	"name": "SEAnim Support",
-	"author": "SE2Dev", 
+	"author": "SE2Dev",
 	"version": (0, 3, 0),
-	"blender": (2, 62, 3),
+	"blender": (2, 78, 0),
 	"location": "File > Import",
 	"description": "Import SEAnim",
 	"warning": "ADDITIVE animations are not currently supported",
