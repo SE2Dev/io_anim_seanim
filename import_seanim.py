@@ -8,7 +8,7 @@ from . import seanim as SEAnim
 
 # This is the scale multiplier for exported anims
 #  currently this is only here to ensure compatibility with Blender-CoD
-g_scale = 1 / 2.54
+g_scale = 1.0 # 1 / 2.54  # TODO - Proper scaling
 
 # A list (in order of priority) of bone names to automatically search for
 # when determining which bone to use as the root for delta anims
