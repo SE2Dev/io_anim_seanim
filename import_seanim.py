@@ -8,7 +8,7 @@ from . import seanim as SEAnim
 
 # This is the scale multiplier for exported anims
 #  currently this is only here to ensure compatibility with Blender-CoD
-g_scale = 1.0 # 1 / 2.54  # TODO - Proper scaling
+g_scale = 1.0  # 1 / 2.54  # TODO - Proper scaling
 
 # A list (in order of priority) of bone names to automatically search for
 # when determining which bone to use as the root for delta anims
@@ -80,6 +80,12 @@ def load(self, context, filepath=""):
     with ProgressReport(context.window_manager) as progress:
         # Begin the progress counter with 1 step for each file
         progress.enter_substeps(len(self.files))
+
+        # Force all bones to use quaternion rotation
+        # (Must be included or bone.rotation_quaternion won't update
+        #  properly when setting the matrix directly)
+        for bone in ob.pose.bones.data.bones:
+            bone.rotation_mode = 'QUATERNION'
 
         for f in self.files:
             progress.enter_substeps(1, f.name)
