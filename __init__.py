@@ -9,7 +9,7 @@ import time
 bl_info = {
     "name": "SEAnim Support",
     "author": "SE2Dev",
-    "version": (0, 3, 2),
+    "version": (0, 3, 3),
     "blender": (2, 78, 0),
     "location": "File > Import",
     "description": "Import SEAnim",
