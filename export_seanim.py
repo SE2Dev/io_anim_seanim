@@ -50,7 +50,11 @@ def gen_rot_key(frame, pose_bone, anim_type):
     quat = get_rot_quat(pose_bone, anim_type)
     return SEAnim.KeyFrame(frame, (quat.x, quat.y, quat.z, quat.w))
 
-# Generate an SEAnim compatible SCALE keyframe from a given pose bone
+
+def gen_scale_key(frame, pose_bone, anim_type):
+    '''
+    Generate an SEAnim compatible SCALE keyframe from a given pose bone
+    '''
     scale = tuple(pose_bone.scale)
     return SEAnim.KeyFrame(frame, scale)
 
