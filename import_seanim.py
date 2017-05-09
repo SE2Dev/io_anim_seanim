@@ -34,7 +34,9 @@ def ResolvePotentialAnimTypeOverride(bone, boneAnimModifiers):
          a given list of modifier bones
         Returns None if no override is needed
     """
-    parents = bone.parent_recursive + [bone]  # Check if the +bone is needed
+    # + [bone]  # Add [bone] to the parent list if the modifier affects
+    # a bone and its children instead of ONLY the children
+    parents = bone.parent_recursive
     if len(parents) == 0 or len(boneAnimModifiers) == 0:
         return None
 
