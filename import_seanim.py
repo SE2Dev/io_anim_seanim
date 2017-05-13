@@ -130,7 +130,7 @@ def load_seanim(self, context, progress, filepath=""):
             if(len(tag.name) == 0 and
                anim.header.animType == SEAnim.SEANIM_TYPE.SEANIM_TYPE_DELTA):
                 root = first(DeltaRootBones,
-                             (bone.name for bone in ob.pose.bones.data.bones))
+                             [bone.name.lower() for bone in ob.pose.bones])
                 if root is not None:
                     tag.name = root
             bone = ob.pose.bones.data.bones[tag.name]
