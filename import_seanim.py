@@ -12,6 +12,7 @@ g_scale = 1 / 2.54  # TODO - Proper scaling
 
 # A list (in order of priority) of bone names to automatically search for
 # when determining which bone to use as the root for delta anims
+# All entries in this list should be lowercase
 DeltaRootBones = ["tag_origin"]
 
 
@@ -123,6 +124,15 @@ def load_seanim(self, context, progress, filepath=""):
     # Import the actual keyframes
     progress.enter_substeps(anim.header.boneCount)
 
+    # Look up table that we use to get a given bone by name
+    # without having to worry about casing
+    bone_map = {}
+    for bone in ob.pose.bones:
+        name = bone.name.lower()
+        if name in bone_map:
+            print("Warning: Bone name conflict for '%s'\n" % name)
+        bone_map[bone.name.lower()] = bone
+
     for i, tag in enumerate(anim.bones):
         try:
             # Attempt to resolve the root bone name (if it doesn't have one)
@@ -133,7 +143,7 @@ def load_seanim(self, context, progress, filepath=""):
                              [bone.name.lower() for bone in ob.pose.bones])
                 if root is not None:
                     tag.name = root
-            bone = ob.pose.bones.data.bones[tag.name]
+            bone = bone_map[tag.name.lower()]
         except:
             pass
         else:
@@ -146,7 +156,7 @@ def load_seanim(self, context, progress, filepath=""):
             if len(tag.posKeys):
                 bone.matrix_basis.identity()
 
-                fcurves = generate_fcurves(action.fcurves, tag.name,
+                fcurves = generate_fcurves(action.fcurves, bone.name,
                                            'location', 3)
                 keyCount = len(tag.posKeys)
                 for axis, fcurve in enumerate(fcurves):
@@ -184,7 +194,7 @@ def load_seanim(self, context, progress, filepath=""):
             if len(tag.rotKeys):
                 bone.matrix_basis.identity()
 
-                fcurves = generate_fcurves(action.fcurves, tag.name,
+                fcurves = generate_fcurves(action.fcurves, bone.name,
                                            'rotation_quaternion', 4)
                 keyCount = len(tag.rotKeys)
                 for axis, fcurve in enumerate(fcurves):
@@ -227,7 +237,7 @@ def load_seanim(self, context, progress, filepath=""):
             if len(tag.scaleKeys):
                 bone.matrix_basis.identity()
 
-                fcurves = generate_fcurves(action.fcurves, tag.name,
+                fcurves = generate_fcurves(action.fcurves, bone.name,
                                            'scale', 3)
                 keyCount = len(tag.scaleKeys)
                 for axis, fcurve in enumerate(fcurves):
