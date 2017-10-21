@@ -16,6 +16,7 @@ LOG_ANIM_NOTES = False
 def enum(**enums):
     return type('Enum', (), enums)
 
+
 SEANIM_TYPE = enum(
     SEANIM_TYPE_ABSOLUTE=0,
     SEANIM_TYPE_ADDITIVE=1,
@@ -231,12 +232,11 @@ class Bone(object):
 
     def load(self, file):
         bytes = b''
-        for i in range(64):
-            b = file.read(1)
-            if b == b'\x00':
-                self.name = bytes.decode("utf-8")
-                break
+        b = file.read(1)
+        while not b == b'\x00':
             bytes += b
+            b = file.read(1)
+        self.name = bytes.decode("utf-8")
 
     def loadData(self, file, frame_t, precision_t,
                  useLoc=False, useRot=False, useScale=False):
@@ -351,12 +351,11 @@ class Note(object):
         self.frame = data[0]
 
         bytes = b''
-        for i in range(64):
-            b = file.read(1)
-            if b == b'\x00':
-                self.name = bytes.decode("utf-8")
-                break
+        b = file.read(1)
+        while not b == b'\x00':
             bytes += b
+            b = file.read(1)
+        self.name = bytes.decode("utf-8")
 
     def save(self, file, frame_t):
         bytes = struct.pack('%c' % frame_t.char, self.frame)
