@@ -145,10 +145,10 @@ class Frame_t(object):
     __slots__ = ('size', 'char')
 
     def __init__(self, header):
-        if header.frameCount - 1 <= 0xFF:
+        if header.frameCount <= 0xFF:
             self.size = 1
             self.char = 'B'
-        elif header.frameCount - 1 <= 0xFFFF:
+        elif header.frameCount <= 0xFFFF:
             self.size = 2
             self.char = 'h'
         else:  # if header.frameCount <= 0xFFFFFFFF:
