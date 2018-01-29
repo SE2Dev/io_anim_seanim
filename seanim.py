@@ -150,7 +150,7 @@ class Frame_t(object):
             self.char = 'B'
         elif header.frameCount <= 0xFFFF:
             self.size = 2
-            self.char = 'h'
+            self.char = 'H'
         else:  # if header.frameCount <= 0xFFFFFFFF:
             self.size = 4
             self.char = 'I'
@@ -169,7 +169,7 @@ class Bone_t(object):
             self.char = 'B'
         elif header.boneCount <= 0xFFFF:
             self.size = 2
-            self.char = 'h'
+            self.char = 'H'
         else:  # if header.boneCount <= 0xFFFFFFFF:
             self.size = 4
             self.char = 'I'
