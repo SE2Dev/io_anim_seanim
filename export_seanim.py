@@ -9,11 +9,6 @@ from . import seanim as SEAnim
 
 # TODO: Add support for defining modifier bones for Absolute anims
 
-# This is the scale multiplier for exported anims
-#  currently this is only here to ensure compatibility with Blender-CoD
-g_scale = 1 / 2.54
-
-
 def get_loc_vec(bone, anim_type):
     if (anim_type == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE and
             bone.parent is not None):
@@ -39,8 +34,7 @@ def get_rot_quat(bone, anim_type):
 
 
 def gen_loc_key(frame, pose_bone, anim_type):
-    # Remove the multiplication later
-    loc = get_loc_vec(pose_bone, anim_type) * g_scale
+    loc = get_loc_vec(pose_bone, anim_type)
     return SEAnim.KeyFrame(frame, (loc.x, loc.y, loc.z))
 
 # Generate a SEAnim compatible ROT keyframe from a given pose bone
