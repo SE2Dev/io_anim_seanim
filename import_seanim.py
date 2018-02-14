@@ -6,10 +6,6 @@ from . import seanim as SEAnim
 
 # <pep8 compliant>
 
-# This is the scale multiplier for exported anims
-#  currently this is only here to ensure compatibility with Blender-CoD
-g_scale = 1 / 2.54  # TODO - Proper scaling
-
 # A list (in order of priority) of bone names to automatically search for
 # when determining which bone to use as the root for delta anims
 # All entries in this list should be lowercase
@@ -169,9 +165,8 @@ def load_seanim(self, context, progress, filepath=""):
                         (-1, bone.location[axis]))
 
                 for k, key in enumerate(tag.posKeys):
-                    # Currently the conversion is only here because I never
-                    # added scaling options for Blender-CoD
-                    offset = Vector(key.data) * g_scale
+                    # Read the vector key
+                    offset = Vector(key.data)
 
                     # Viewanims are SEANIM_TYPE_ABSOLUTE - But all children of
                     # j_gun has a SEANIM_TYPE_RELATIVE override
