@@ -245,6 +245,7 @@ def save(self, context):
     prefix = self.prefix  # os.path.basename(self.filepath)
     suffix = self.suffix
     path = os.path.dirname(self.filepath) + "/"
+    path = os.path.normpath(path)
 
     # Gets automatically updated per-action if self.use_actions is true,
     # otherwise it stays the same
