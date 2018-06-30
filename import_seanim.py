@@ -73,7 +73,7 @@ def load(self, context, filepath=""):
     if ob.type != 'ARMATURE':
         return "An armature must be selected!"
 
-    path = os.path.dirname(filepath) + "\\"
+    path = os.path.dirname(filepath) + "/"
 
     try:
         ob.animation_data.action
