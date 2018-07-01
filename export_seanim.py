@@ -244,7 +244,8 @@ def save(self, context):
 
     prefix = self.prefix  # os.path.basename(self.filepath)
     suffix = self.suffix
-    path = os.path.dirname(self.filepath) + "/"
+
+    path = os.path.dirname(self.filepath)
     path = os.path.normpath(path)
 
     # Gets automatically updated per-action if self.use_actions is true,
@@ -262,7 +263,8 @@ def save(self, context):
 
         for action in actions:
             if self.use_actions:
-                filepath = path + prefix + action.name + suffix + ".seanim"
+                filename = prefix + action.name + suffix + ".seanim"
+                filepath = os.path.join(path, filename)
 
             progress.enter_substeps(1, action.name)
             try:

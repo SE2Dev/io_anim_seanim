@@ -73,7 +73,7 @@ def load(self, context, filepath=""):
     if ob.type != 'ARMATURE':
         return "An armature must be selected!"
 
-    path = os.path.dirname(filepath) + "/"
+    path = os.path.dirname(filepath)
     path = os.path.normpath(path)
 
     try:
@@ -94,7 +94,8 @@ def load(self, context, filepath=""):
         for f in self.files:
             progress.enter_substeps(1, f.name)
             try:
-                load_seanim(self, context, progress, path + f.name)
+                anim_path = os.path.join(path, f.name)
+                load_seanim(self, context, progress, anim_path)
             except Exception as e:
                 progress.leave_substeps("ERROR: " + repr(e))
             else:
