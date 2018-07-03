@@ -264,7 +264,7 @@ def save(self, context):
         for action in actions:
             if self.use_actions:
                 filename = prefix + action.name + suffix + ".seanim"
-                filepath = os.path.join(path, filename)
+                filepath = os.path.normpath(os.path.join(path, filename))
 
             progress.enter_substeps(1, action.name)
             try:
