@@ -1,7 +1,7 @@
 import bpy
 import bpy_types
 from mathutils import *
-from progress_report import ProgressReport, ProgressReportSubstep
+from bpy_extras.wm_utils.progress_report import ProgressReport, ProgressReportSubstep
 import os
 from . import seanim as SEAnim
 
