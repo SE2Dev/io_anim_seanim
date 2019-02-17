@@ -3,6 +3,8 @@ import bpy_extras.io_utils
 from bpy.types import Operator, AddonPreferences
 from bpy.props import *
 from bpy_extras.io_utils import ExportHelper, ImportHelper
+from bpy.utils import register_class
+from bpy.utils import unregister_class
 
 import time
 
@@ -13,7 +15,7 @@ bl_info = {
     "blender": (2, 78, 0),
     "location": "File > Import",
     "description": "Import SEAnim",
-    "warning": "ADDITIVE animations are not implemented at this time",
+    "warning": "ADDITIVE animations are not currently supported",
     "wiki_url": "https://github.com/SE2Dev/io_anim_seanim",
     "tracker_url": "https://github.com/SE2Dev/io_anim_seanim/issues",
     "support": "COMMUNITY",
@@ -199,16 +201,32 @@ def menu_func_seanim_export(self, context):
     self.layout.operator(ExportSEAnim.bl_idname, text="SEAnim (.seanim)")
 
 
+'''
+    CLASS REGISTRATION
+    SEE https://wiki.blender.org/wiki/Reference/Release_Notes/2.80/Python_API/Addons
+'''
+
+classes = (
+    ImportSEAnim,
+    ExportSEAnim
+)
+
+
 def register():
-    bpy.utils.register_module(__name__)
-    bpy.types.INFO_MT_file_import.append(menu_func_seanim_import)
-    bpy.types.INFO_MT_file_export.append(menu_func_seanim_export)
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+    bpy.types.TOPBAR_MT_file_import.append(menu_func_seanim_import)
+    bpy.types.TOPBAR_MT_file_export.append(menu_func_seanim_export)
 
 
 def unregister():
-    bpy.utils.unregister_module(__name__)
-    bpy.types.INFO_MT_file_import.remove(menu_func_seanim_import)
-    bpy.types.INFO_MT_file_export.remove(menu_func_seanim_export)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func_seanim_import)
+    bpy.types.TOPBAR_MT_file_export.remove(menu_func_seanim_export)
+
+    for cls in classes:
+        bpy.utils.unregister_class(cls)
+
 
 
 if __name__ == "__main__":
