@@ -178,7 +178,7 @@ def load_seanim(self, context, progress, filepath=""):
                     # j_gun has a SEANIM_TYPE_RELATIVE override
                     if (animType == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE and
                             bone.parent is not None):
-                        bone.matrix.translation = bone.parent.matrix * offset
+                        bone.matrix.translation = bone.parent.matrix @ offset
                     else:  # Use DELTA / RELATIVE results (ADDITIVE is unknown)
                         bone.matrix_basis.translation = offset
 
@@ -220,7 +220,7 @@ def load_seanim(self, context, progress, filepath=""):
                         bone.matrix_basis.identity()
                         mat = angle.to_4x4()
                     else:
-                        mat = (bone.parent.matrix.to_3x3() * angle).to_4x4()
+                        mat = (bone.parent.matrix.to_3x3() @ angle).to_4x4()
 
                     bone.matrix = mat
 
