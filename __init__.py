@@ -39,9 +39,9 @@ class ImportSEAnim(bpy.types.Operator, ImportHelper):
     bl_options = {'PRESET'}
 
     filename_ext = ".seanim"
-    filter_glob = StringProperty(default="*.seanim", options={'HIDDEN'})
+    filter_glob: StringProperty(default="*.seanim", options={'HIDDEN'})
 
-    files = CollectionProperty(type=bpy.types.PropertyGroup)
+    files: CollectionProperty(type=bpy.types.PropertyGroup)
 
     def execute(self, context):
         # print("Selected: " + context.active_object.name)
@@ -79,11 +79,11 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
     bl_options = {'PRESET'}
 
     filename_ext = ".seanim"
-    filter_glob = StringProperty(default="*.seanim", options={'HIDDEN'})
+    filter_glob: StringProperty(default="*.seanim", options={'HIDDEN'})
 
-    files = CollectionProperty(type=bpy.types.PropertyGroup)
+    files: CollectionProperty(type=bpy.types.PropertyGroup)
 
-    anim_type = EnumProperty(
+    anim_type: EnumProperty(
         name="Anim Type",
         description="Choose between two items",
         items=(	('OPT_ABSOLUTE', "Absolute", "Used for viewmodel animations"),
@@ -93,7 +93,7 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
         default='OPT_RELATIVE',
     )
 
-    key_types = EnumProperty(
+    key_types: EnumProperty(
         name="Keyframe Types",
         description="Export specific keyframe types",
         options={'ENUM_FLAG'},
@@ -104,36 +104,36 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
         default={'LOC', 'ROT'},  # , 'SCALE'},
     )
 
-    every_frame = BoolProperty(
+    every_frame: BoolProperty(
         name="Every Frame",
         description="Automatically generate keyframes for every single frame",
         default=False)
 
-    high_precision = BoolProperty(
+    high_precision: BoolProperty(
         name="High Precision",
         description=("Use double precision floating point values for "
                      "quaternions and vectors (Note: Increases file size)"),
         default=False)
 
-    is_looped = BoolProperty(
+    is_looped: BoolProperty(
         name="Looped",
         description="Mark the animation as a looping animation",
         default=False)
 
-    use_actions = BoolProperty(
+    use_actions: BoolProperty(
         name="Export All Actions",
         description="Export all actions to the target path",
         default=False)
 
     # PREFIX & SUFFIX Require "use_actions" to be true and are enabled /
     # disabled from __update_use_actions
-    prefix = StringProperty(
+    prefix: StringProperty(
         name="File Prefix",
         description=("The prefix string that is applied to the beginning "
                      "of the filename for each exported action"),
         default="")
 
-    suffix = StringProperty(
+    suffix: StringProperty(
         name="File Suffix",
         description=("The suffix string that is applied to the end "
                      "of the filename for each exported action"),
