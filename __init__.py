@@ -144,7 +144,7 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
         layout.prop(self, "anim_type")
 
         row = layout.row()
-        row.label("Include:")
+        row.label(text="Include:")
         row.prop(self, "key_types")
 
         layout.prop(self, "high_precision")
