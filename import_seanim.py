@@ -2,6 +2,7 @@ import bpy
 from mathutils import *
 from progress_report import ProgressReport, ProgressReportSubstep
 import os
+import platform
 from . import seanim as SEAnim
 
 # <pep8 compliant>
@@ -73,7 +74,10 @@ def load(self, context, filepath=""):
     if ob.type != 'ARMATURE':
         return "An armature must be selected!"
 
-    path = os.path.dirname(filepath) + "\\"
+    if platform.system() == "Windows":
+        path = os.path.dirname(filepath) + "\\"
+    else:
+        path = os.path.dirname(filepath) + "/"
 
     try:
         ob.animation_data.action

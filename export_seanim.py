@@ -3,6 +3,7 @@ import bpy_types
 from mathutils import *
 from progress_report import ProgressReport, ProgressReportSubstep
 import os
+import platform
 from . import seanim as SEAnim
 
 # <pep8 compliant>
@@ -244,7 +245,10 @@ def save(self, context):
 
     prefix = self.prefix  # os.path.basename(self.filepath)
     suffix = self.suffix
-    path = os.path.dirname(self.filepath) + "\\"
+    if platform.system() == "Windows":
+        path = os.path.dirname(filepath) + "\\"
+    else:
+        path = os.path.dirname(filepath) + "/"
 
     # Gets automatically updated per-action if self.use_actions is true,
     # otherwise it stays the same
