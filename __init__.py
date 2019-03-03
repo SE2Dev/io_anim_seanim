@@ -9,11 +9,11 @@ import time
 bl_info = {
     "name": "SEAnim Support",
     "author": "SE2Dev",
-    "version": (0, 3, 7),
+    "version": (0, 3, 8),
     "blender": (2, 78, 0),
     "location": "File > Import",
     "description": "Import SEAnim",
-    "warning": "ADDITIVE animations are not currently supported",
+    "warning": "ADDITIVE animations are not implemented at this time",
     "wiki_url": "https://github.com/SE2Dev/io_anim_seanim",
     "tracker_url": "https://github.com/SE2Dev/io_anim_seanim/issues",
     "support": "COMMUNITY",
@@ -209,6 +209,7 @@ def unregister():
     bpy.utils.unregister_module(__name__)
     bpy.types.INFO_MT_file_import.remove(menu_func_seanim_import)
     bpy.types.INFO_MT_file_export.remove(menu_func_seanim_export)
+
 
 if __name__ == "__main__":
     register()

@@ -7,8 +7,7 @@ from . import seanim as SEAnim
 # <pep8 compliant>
 
 # This is the scale multiplier for exported anims
-#  currently this is only here to ensure compatibility with Blender-CoD
-g_scale = 1 / 2.54  # TODO - Proper scaling
+g_scale = 1  # TODO - Proper scaling
 
 # A list (in order of priority) of bone names to automatically search for
 # when determining which bone to use as the root for delta anims
@@ -73,7 +72,8 @@ def load(self, context, filepath=""):
     if ob.type != 'ARMATURE':
         return "An armature must be selected!"
 
-    path = os.path.dirname(filepath) + "\\"
+    path = os.path.dirname(filepath)
+    path = os.path.normpath(path)
 
     try:
         ob.animation_data.action
@@ -93,7 +93,8 @@ def load(self, context, filepath=""):
         for f in self.files:
             progress.enter_substeps(1, f.name)
             try:
-                load_seanim(self, context, progress, path + f.name)
+                anim_path = os.path.normpath(os.path.join(path, f.name))
+                load_seanim(self, context, progress, anim_path)
             except Exception as e:
                 progress.leave_substeps("ERROR: " + repr(e))
             else:

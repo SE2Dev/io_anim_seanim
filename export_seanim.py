@@ -10,8 +10,7 @@ from . import seanim as SEAnim
 # TODO: Add support for defining modifier bones for Absolute anims
 
 # This is the scale multiplier for exported anims
-#  currently this is only here to ensure compatibility with Blender-CoD
-g_scale = 1 / 2.54
+g_scale = 1  # TODO - Proper scaling
 
 
 def get_loc_vec(bone, anim_type):
@@ -244,7 +243,9 @@ def save(self, context):
 
     prefix = self.prefix  # os.path.basename(self.filepath)
     suffix = self.suffix
-    path = os.path.dirname(self.filepath) + "\\"
+
+    path = os.path.dirname(self.filepath)
+    path = os.path.normpath(path)
 
     # Gets automatically updated per-action if self.use_actions is true,
     # otherwise it stays the same
@@ -261,7 +262,8 @@ def save(self, context):
 
         for action in actions:
             if self.use_actions:
-                filepath = path + prefix + action.name + suffix + ".seanim"
+                filename = prefix + action.name + suffix + ".seanim"
+                filepath = os.path.normpath(os.path.join(path, filename))
 
             progress.enter_substeps(1, action.name)
             try:
