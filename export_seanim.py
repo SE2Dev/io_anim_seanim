@@ -10,8 +10,7 @@ from . import seanim as SEAnim
 # TODO: Add support for defining modifier bones for Absolute anims
 
 # This is the scale multiplier for exported anims
-#  currently this is only here to ensure compatibility with Blender-CoD
-g_scale = 1 / 2.54
+g_scale = 1  # TODO - Proper scaling
 
 
 def get_loc_vec(bone, anim_type):
