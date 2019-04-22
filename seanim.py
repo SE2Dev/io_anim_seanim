@@ -310,7 +310,7 @@ class Bone(object):
             bytes = struct.pack('%c' % frame_t.char, len(self.posKeys))
             file.write(bytes)
 
-            for i, key in enumerate(self.posKeys):
+            for key in self.posKeys:
                 bytes = struct.pack('=%c3%c' %
                                     (frame_t.char, precision_t.char),
                                     key.frame,
@@ -321,7 +321,7 @@ class Bone(object):
             bytes = struct.pack('%c' % frame_t.char, len(self.rotKeys))
             file.write(bytes)
 
-            for i, key in enumerate(self.rotKeys):
+            for key in self.rotKeys:
                 bytes = struct.pack('=%c4%c' %
                                     (frame_t.char, precision_t.char),
                                     key.frame,
@@ -333,7 +333,7 @@ class Bone(object):
             bytes = struct.pack('%c' % frame_t.char, len(self.scaleKeys))
             file.write(bytes)
 
-            for i, key in enumerate(self.scaleKeys):
+            for key in self.scaleKeys:
                 bytes = struct.pack('=%c3%c' %
                                     (frame_t.char, precision_t.char),
                                     key.frame,
