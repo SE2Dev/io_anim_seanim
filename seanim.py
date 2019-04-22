@@ -548,7 +548,7 @@ class Anim(object):
         try:
             file = open(filepath, "wb")
         except IOError:
-            print("Could not open file for writing:\n %s" % path)
+            print("Could not open file for writing:\n %s" % filepath)
             return
 
         # Update the header flags, based on the presence of different keyframe
