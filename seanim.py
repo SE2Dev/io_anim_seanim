@@ -1,6 +1,15 @@
 import time
 import struct
 
+try:
+    # Try to import the Python 3.x enum module
+    from enum import IntEnum
+except:
+    # If we're on Python 2.x we need to define
+    # a dummy replacement
+    class IntEnum:
+        pass
+
 # <pep8 compliant>
 
 LOG_READ_TIME = False
@@ -13,34 +22,32 @@ LOG_ANIM_BONES_KEYS = False
 LOG_ANIM_NOTES = False
 
 
-def enum(**enums):
-    return type('Enum', (), enums)
+class SEANIM_TYPE(IntEnum):
+    SEANIM_TYPE_ABSOLUTE = 0
+    SEANIM_TYPE_ADDITIVE = 1
+    SEANIM_TYPE_RELATIVE = 2
+    SEANIM_TYPE_DELTA = 3
 
 
-SEANIM_TYPE = enum(
-    SEANIM_TYPE_ABSOLUTE=0,
-    SEANIM_TYPE_ADDITIVE=1,
-    SEANIM_TYPE_RELATIVE=2,
-    SEANIM_TYPE_DELTA=3)
-
-SEANIM_PRESENCE_FLAGS = enum(
+class SEANIM_PRESENCE_FLAGS(IntEnum):
     # These describe what type of keyframe data is present for the bones
-    SEANIM_BONE_LOC=1 << 0,
-    SEANIM_BONE_ROT=1 << 1,
-    SEANIM_BONE_SCALE=1 << 2,
+    SEANIM_BONE_LOC = 1 << 0
+    SEANIM_BONE_ROT = 1 << 1
+    SEANIM_BONE_SCALE = 1 << 2
+
     # If any of the above flags are set, then bone keyframe data is present,
     # thus this comparing against this mask will return true
-    SEANIM_PRESENCE_BONE=1 << 0 | 1 << 1 | 1 << 2,
-    SEANIM_PRESENCE_NOTE=1 << 6,  # The file contains notetrack data
-    SEANIM_PRESENCE_CUSTOM=1 << 7,  # The file contains a custom data block
-)
+    SEANIM_PRESENCE_BONE = 1 << 0 | 1 << 1 | 1 << 2
+    SEANIM_PRESENCE_NOTE = 1 << 6  # The file contains notetrack data
+    SEANIM_PRESENCE_CUSTOM = 1 << 7  # The file contains a custom data block
 
 
-SEANIM_PROPERTY_FLAGS = enum(
-    SEANIM_PRECISION_HIGH=1 << 0)
+class SEANIM_PROPERTY_FLAGS(IntEnum):
+    SEANIM_PRECISION_HIGH = 1 << 0
 
-SEANIM_FLAGS = enum(
-    SEANIM_LOOPED=1 << 0)
+
+class SEANIM_FLAGS(IntEnum):
+    SEANIM_LOOPED = 1 << 0
 
 
 class Info(object):
@@ -251,7 +258,7 @@ class Bone(object):
             data = struct.unpack('%c' % frame_t.char, bytes)
             self.locKeyCount = data[0]
 
-            for i in range(self.locKeyCount):
+            for _ in range(self.locKeyCount):
                 bytes = file.read(frame_t.size + 3 * precision_t.size)
                 data = struct.unpack('=%c3%c' %
                                      (frame_t.char, precision_t.char), bytes)
@@ -267,7 +274,7 @@ class Bone(object):
             data = struct.unpack('%c' % frame_t.char, bytes)
             self.rotKeyCount = data[0]
 
-            for i in range(self.rotKeyCount):
+            for _ in range(self.rotKeyCount):
 
                 bytes = file.read(frame_t.size + 4 * precision_t.size)
                 data = struct.unpack('=%c4%c' %
@@ -284,7 +291,7 @@ class Bone(object):
             bytes = file.read(frame_t.size)
             data = struct.unpack('%c' % frame_t.char, bytes)
             self.scaleKeyCount = data[0]
-            for i in range(self.scaleKeyCount):
+            for _ in range(self.scaleKeyCount):
                 bytes = file.read(frame_t.size + 3 * precision_t.size)
                 data = struct.unpack('=%c3%c' %
                                      (frame_t.char, precision_t.char), bytes)
@@ -303,7 +310,7 @@ class Bone(object):
             bytes = struct.pack('%c' % frame_t.char, len(self.posKeys))
             file.write(bytes)
 
-            for i, key in enumerate(self.posKeys):
+            for key in self.posKeys:
                 bytes = struct.pack('=%c3%c' %
                                     (frame_t.char, precision_t.char),
                                     key.frame,
@@ -314,7 +321,7 @@ class Bone(object):
             bytes = struct.pack('%c' % frame_t.char, len(self.rotKeys))
             file.write(bytes)
 
-            for i, key in enumerate(self.rotKeys):
+            for key in self.rotKeys:
                 bytes = struct.pack('=%c4%c' %
                                     (frame_t.char, precision_t.char),
                                     key.frame,
@@ -326,7 +333,7 @@ class Bone(object):
             bytes = struct.pack('%c' % frame_t.char, len(self.scaleKeys))
             file.write(bytes)
 
-            for i, key in enumerate(self.scaleKeys):
+            for key in self.scaleKeys:
                 bytes = struct.pack('=%c3%c' %
                                     (frame_t.char, precision_t.char),
                                     key.frame,
@@ -548,7 +555,7 @@ class Anim(object):
         try:
             file = open(filepath, "wb")
         except IOError:
-            print("Could not open file for writing:\n %s" % path)
+            print("Could not open file for writing:\n %s" % filepath)
             return
 
         # Update the header flags, based on the presence of different keyframe

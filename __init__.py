@@ -3,17 +3,19 @@ import bpy_extras.io_utils
 from bpy.types import Operator, AddonPreferences
 from bpy.props import *
 from bpy_extras.io_utils import ExportHelper, ImportHelper
+from bpy.utils import register_class
+from bpy.utils import unregister_class
 
 import time
 
 bl_info = {
     "name": "SEAnim Support",
     "author": "SE2Dev",
-    "version": (0, 3, 8),
-    "blender": (2, 78, 0),
+    "version": (0, 4, 0),
+    "blender": (2, 80, 0),
     "location": "File > Import",
     "description": "Import SEAnim",
-    "warning": "ADDITIVE animations are not implemented at this time",
+    "warning": "ADDITIVE animations are not currently supported",
     "wiki_url": "https://github.com/SE2Dev/io_anim_seanim",
     "tracker_url": "https://github.com/SE2Dev/io_anim_seanim/issues",
     "support": "COMMUNITY",
@@ -37,9 +39,9 @@ class ImportSEAnim(bpy.types.Operator, ImportHelper):
     bl_options = {'PRESET'}
 
     filename_ext = ".seanim"
-    filter_glob = StringProperty(default="*.seanim", options={'HIDDEN'})
+    filter_glob: StringProperty(default="*.seanim", options={'HIDDEN'})
 
-    files = CollectionProperty(type=bpy.types.PropertyGroup)
+    files: CollectionProperty(type=bpy.types.PropertyGroup)
 
     def execute(self, context):
         # print("Selected: " + context.active_object.name)
@@ -77,11 +79,11 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
     bl_options = {'PRESET'}
 
     filename_ext = ".seanim"
-    filter_glob = StringProperty(default="*.seanim", options={'HIDDEN'})
+    filter_glob: StringProperty(default="*.seanim", options={'HIDDEN'})
 
-    files = CollectionProperty(type=bpy.types.PropertyGroup)
+    files: CollectionProperty(type=bpy.types.PropertyGroup)
 
-    anim_type = EnumProperty(
+    anim_type: EnumProperty(
         name="Anim Type",
         description="Choose between two items",
         items=(	('OPT_ABSOLUTE', "Absolute", "Used for viewmodel animations"),
@@ -91,7 +93,7 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
         default='OPT_RELATIVE',
     )
 
-    key_types = EnumProperty(
+    key_types: EnumProperty(
         name="Keyframe Types",
         description="Export specific keyframe types",
         options={'ENUM_FLAG'},
@@ -102,36 +104,36 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
         default={'LOC', 'ROT'},  # , 'SCALE'},
     )
 
-    every_frame = BoolProperty(
+    every_frame: BoolProperty(
         name="Every Frame",
         description="Automatically generate keyframes for every single frame",
         default=False)
 
-    high_precision = BoolProperty(
+    high_precision: BoolProperty(
         name="High Precision",
         description=("Use double precision floating point values for "
                      "quaternions and vectors (Note: Increases file size)"),
         default=False)
 
-    is_looped = BoolProperty(
+    is_looped: BoolProperty(
         name="Looped",
         description="Mark the animation as a looping animation",
         default=False)
 
-    use_actions = BoolProperty(
+    use_actions: BoolProperty(
         name="Export All Actions",
         description="Export all actions to the target path",
         default=False)
 
     # PREFIX & SUFFIX Require "use_actions" to be true and are enabled /
     # disabled from __update_use_actions
-    prefix = StringProperty(
+    prefix: StringProperty(
         name="File Prefix",
         description=("The prefix string that is applied to the beginning "
                      "of the filename for each exported action"),
         default="")
 
-    suffix = StringProperty(
+    suffix: StringProperty(
         name="File Suffix",
         description=("The suffix string that is applied to the end "
                      "of the filename for each exported action"),
@@ -142,7 +144,7 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
         layout.prop(self, "anim_type")
 
         row = layout.row()
-        row.label("Include:")
+        row.label(text="Include:")
         row.prop(self, "key_types")
 
         layout.prop(self, "high_precision")
@@ -199,16 +201,32 @@ def menu_func_seanim_export(self, context):
     self.layout.operator(ExportSEAnim.bl_idname, text="SEAnim (.seanim)")
 
 
+'''
+    CLASS REGISTRATION
+    SEE https://wiki.blender.org/wiki/Reference/Release_Notes/2.80/Python_API/Addons
+'''
+
+classes = (
+    ImportSEAnim,
+    ExportSEAnim
+)
+
+
 def register():
-    bpy.utils.register_module(__name__)
-    bpy.types.INFO_MT_file_import.append(menu_func_seanim_import)
-    bpy.types.INFO_MT_file_export.append(menu_func_seanim_export)
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+    bpy.types.TOPBAR_MT_file_import.append(menu_func_seanim_import)
+    bpy.types.TOPBAR_MT_file_export.append(menu_func_seanim_export)
 
 
 def unregister():
-    bpy.utils.unregister_module(__name__)
-    bpy.types.INFO_MT_file_import.remove(menu_func_seanim_import)
-    bpy.types.INFO_MT_file_export.remove(menu_func_seanim_export)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func_seanim_import)
+    bpy.types.TOPBAR_MT_file_export.remove(menu_func_seanim_export)
+
+    for cls in classes:
+        bpy.utils.unregister_class(cls)
+
 
 
 if __name__ == "__main__":
