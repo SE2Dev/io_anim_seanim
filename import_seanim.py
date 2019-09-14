@@ -279,5 +279,5 @@ def load_seanim(self, context, progress, filepath=""):
         notetrack = ob.animation_data.action.pose_markers.new(note.name)
         notetrack.frame = note.frame
 
-    bpy.context.scene.update()
+    bpy.context.evaluated_depsgraph_get().update()
     bpy.ops.object.mode_set(mode='POSE')
