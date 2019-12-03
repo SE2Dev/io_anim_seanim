@@ -212,9 +212,7 @@ def load_seanim(self, context, progress, filepath=""):
                     angle = quat.to_matrix().to_3x3()
 
                     bone.matrix_basis.identity()
-                    try:
-                        bone.parent.matrix
-                    except:
+                    if bone.parent is None:
                         # I don't actually remember why this is here - probably
                         # to set the root bone(s) to its rest pos / angle
                         bone.matrix_basis.identity()
@@ -279,5 +277,5 @@ def load_seanim(self, context, progress, filepath=""):
         notetrack = ob.animation_data.action.pose_markers.new(note.name)
         notetrack.frame = note.frame
 
-    bpy.context.scene.update()
+    bpy.context.evaluated_depsgraph_get().update()
     bpy.ops.object.mode_set(mode='POSE')
