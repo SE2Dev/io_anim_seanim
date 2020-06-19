@@ -16,7 +16,7 @@ g_scale = 1  # TODO - Proper scaling
 def get_loc_vec(bone, anim_type):
     if (anim_type == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE and
             bone.parent is not None):
-        return bone.parent.matrix.inverted() * bone.matrix.translation
+        return bone.parent.matrix.inverted() @ bone.matrix.translation
     return bone.matrix_basis.translation
 
 # TODO: Support for SEANIM_TYPE_ADDITIVE
@@ -32,7 +32,7 @@ def get_rot_quat(bone, anim_type):
         return bone.matrix.to_quaternion()
     else:
         mtx = bone.parent.matrix.to_3x3()
-        return (mtx.inverted() * bone.matrix.to_3x3()).to_quaternion()
+        return (mtx.inverted() @ bone.matrix.to_3x3()).to_quaternion()
 
 # Generate a SEAnim compatible LOC keyframe from a given pose bone
 
