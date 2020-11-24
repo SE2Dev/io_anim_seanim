@@ -125,19 +125,27 @@ def export_action(self, context, progress, action, filepath):
                 raise
             pose_bone = prop.data
 
-            if prop == pose_bone.location.owner:
+            location_owner = False
+            rotation_owner = False
+
+            try:
+                rotation_owner = (
+                        prop == pose_bone.rotation_quaternion.owner or prop == pose_bone.rotation_euler.owner or prop == pose_bone.rotation_axis_angle.owner)
+                location_owner = prop == pose_bone.location.owner
+            except Exception as e:
+                pass
+
+            if location_owner:
                 if not use_keys_loc:
                     continue
                 # print("LOC")
                 index = 0
-            elif(prop == pose_bone.rotation_quaternion.owner or
-                 prop == pose_bone.rotation_euler.owner or
-                 prop == pose_bone.rotation_axis_angle.owner):
+            elif rotation_owner:
                 if not use_keys_rot:
                     continue
                 # print("ROT")
                 index = 1
-            elif owner is pose_bone.scale.owner:
+            elif prop == pose_bone.scale.owner:
                 if not use_keys_scale:
                     continue
                 # print("SCALE")
