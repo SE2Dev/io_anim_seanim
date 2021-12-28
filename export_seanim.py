@@ -40,14 +40,14 @@ def get_rot_quat(bone, anim_type):
 def gen_loc_key(frame, pose_bone, anim_type):
     # Remove the multiplication later
     loc = get_loc_vec(pose_bone, anim_type) * g_scale
-    return SEAnim.KeyFrame(frame, (loc.x, loc.y, loc.z))
+    return SEAnim.KeyFrame(frame, (loc.x, loc.z, loc.y))
 
 # Generate a SEAnim compatible ROT keyframe from a given pose bone
 
 
 def gen_rot_key(frame, pose_bone, anim_type):
     quat = get_rot_quat(pose_bone, anim_type)
-    return SEAnim.KeyFrame(frame, (quat.x, quat.y, quat.z, quat.w))
+    return SEAnim.KeyFrame(frame, (quat.x, quat.z, quat.y, -quat.w))
 
 
 def gen_scale_key(frame, pose_bone, anim_type):
@@ -55,7 +55,7 @@ def gen_scale_key(frame, pose_bone, anim_type):
     Generate an SEAnim compatible SCALE keyframe from a given pose bone
     '''
     scale = tuple(pose_bone.scale)
-    return SEAnim.KeyFrame(frame, scale)
+    return SEAnim.KeyFrame(frame, (scale[0], scale[2], scale[1]))
 
 
 def resolve_animtype(self):
