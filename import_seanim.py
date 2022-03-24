@@ -118,7 +118,7 @@ def load_seanim(self, context, progress, filepath=""):
     ob.animation_data.action.use_fake_user = True
 
     scene = bpy.context.scene
-    scene.render.fps = anim.header.framerate
+    scene.render.fps = int(anim.header.framerate)
     scene.frame_start = 0  # bpy.context.scene.frame_current
     scene.frame_end = scene.frame_start + anim.header.frameCount - 1
 
