@@ -179,7 +179,11 @@ def load_seanim(self, context, progress, filepath=""):
                     if (animType == SEAnim.SEANIM_TYPE.SEANIM_TYPE_ABSOLUTE and
                             bone.parent is not None):
                         bone.matrix.translation = bone.parent.matrix @ offset
-                    else:  # Use DELTA / RELATIVE results (ADDITIVE is unknown)
+                    # SEANIM_TYPE_RELATIVE
+                    elif animType == SEAnim.SEANIM_TYPE.SEANIM_TYPE_RELATIVE:
+                        bone.matrix_basis.translation = bone.bone.matrix.inverted() @ offset
+                    # Use DELTA / RELATIVE results (ADDITIVE is unknown)
+                    else:
                         bone.matrix_basis.translation = offset
 
                     # bone.keyframe_insert("location", index=-1, frame=key.frame, group=tag.name)  # nopep8
