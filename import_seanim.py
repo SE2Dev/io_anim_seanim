@@ -172,7 +172,9 @@ def load_seanim(self, context, progress, filepath=""):
                 for k, key in enumerate(tag.posKeys):
                     # Currently the conversion is only here because I never
                     # added scaling options for Blender-CoD
-                    offset = Vector(key.data) * g_scale
+                    offset = Vector((
+                        key.data[0], key.data[2], key.data[1]
+                    )) * g_scale
 
                     # Viewanims are SEANIM_TYPE_ABSOLUTE - But all children of
                     # j_gun has a SEANIM_TYPE_RELATIVE override
@@ -211,8 +213,9 @@ def load_seanim(self, context, progress, filepath=""):
 
                 for k, key in enumerate(tag.rotKeys):
                     # Convert the Quaternion to WXYZ
-                    quat = Quaternion(
-                        (key.data[3], key.data[0], key.data[1], key.data[2]))
+                    quat = Quaternion((
+                        -key.data[3], key.data[0], key.data[2], key.data[1]
+                    ))
                     angle = quat.to_matrix().to_3x3()
 
                     bone.matrix_basis.identity()
@@ -251,7 +254,7 @@ def load_seanim(self, context, progress, filepath=""):
                         (-1, bone.scale[axis]))  # Add the control keyframe
 
                 for k, key in enumerate(tag.scaleKeys):
-                    scale = Vector(key.data)
+                    scale = Vector((key.data[0], key.data[2], key.data[1]))
 
                     for axis, fcurve in enumerate(fcurves):
                         fcurve.keyframe_points[
