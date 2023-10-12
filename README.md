@@ -1,4 +1,12 @@
-# io_anim_seanim - SEAnim Plugin for Blender
+# io_anim_seanim - SEAnim Plugin for Blender (DEPRECATED)
+
+# NOTICE: SEAnims are now DEPRECATED. Cast is the newly supported animation format.
+
+- Convert SEAnims to Cast Losslessly [SECast](https://dtzxporter.com/tools/secast)
+- Get cast plugins [Cast](https://github.com/dtzxporter/cast)
+- "My Tool Doesn't Support Cast" - BEG THE DEVELOPER, CAST IS MUCH EASIER TO EXPORT! Or use the converter.
+
+---
 
 Provides import and export support for [SEAnim](https://github.com/SE2Dev/SEAnim-Docs) (*.seanim) files in Blender 3D.
 
