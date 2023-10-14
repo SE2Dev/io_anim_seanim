@@ -99,9 +99,9 @@ class ExportSEAnim(bpy.types.Operator, ExportHelper):
         options={'ENUM_FLAG'},
         items=(('LOC', "Location", ""),
                ('ROT', "Rotation", ""),
-               # ('SCALE', "Scale", ""), # Not Currently Supported  # nopep8
+               ('SCALE', "Scale", ""), # Not Currently Supported  # nopep8
                ),
-        default={'LOC', 'ROT'},  # , 'SCALE'},
+        default={'LOC', 'ROT', 'SCALE'},
     )
 
     every_frame: BoolProperty(
